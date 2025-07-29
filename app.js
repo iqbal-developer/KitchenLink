@@ -24,18 +24,26 @@ const hbs = exphbs.create({
 });
 app.engine('hbs', hbs.engine);
 app.set('view engine', 'hbs');
-app.set('views', path.join(__dirname, 'views')); // explicitly set
+app.set('views', path.join(__dirname, 'views'));
 
 // Middleware
 app.use(express.static('public'));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-// MongoDB connection
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/kitchenlink';
+// MongoDB connection (Railway variable must be set)
+const MONGO_URI = process.env.MONGO_URI;
+if (!MONGO_URI) {
+  console.error('❌ MONGO_URI is not set. Did you add it in Railway Variables?');
+  process.exit(1);
+}
+
 mongoose.connect(MONGO_URI)
-  .then(() => console.log('Connected to MongoDB'))
-  .catch(err => console.error('MongoDB connection error:', err));
+  .then(() => console.log('✅ Connected to MongoDB (Railway)'))
+  .catch(err => {
+    console.error('❌ MongoDB connection error:', err);
+    process.exit(1);
+  });
 
 // Session & flash messages
 app.use(session({
@@ -70,6 +78,6 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Start server (Railway provides PORT automatically)
+// Start server (Railway automatically injects PORT)
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
