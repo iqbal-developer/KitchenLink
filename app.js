@@ -49,6 +49,9 @@ const path = require('path');
 
 const app = express();
 
+// Tell Express where to find views (important for Vercel)
+app.set('views', path.join(__dirname, 'views'));
+
 // Handlebars setup
 const hbs = exphbs.create({
   defaultLayout: 'main',
@@ -96,14 +99,20 @@ app.use('/kitchens', require('./routes/kitchens'));
 app.use('/bookings', require('./routes/bookings'));
 app.use('/users', require('./routes/users'));
 
-// Error handling middleware
+// Error handling middleware (with fallback text if template missing)
 app.use((err, req, res, next) => {
   console.error('Error:', err.message);
-  res.status(500).render('error', {
-    message: process.env.NODE_ENV === 'production'
+  try {
+    res.status(500).render('error', {
+      message: process.env.NODE_ENV === 'production'
+        ? 'Something went wrong!'
+        : err.message
+    });
+  } catch {
+    res.status(500).send(process.env.NODE_ENV === 'production'
       ? 'Something went wrong!'
-      : err.message
-  });
+      : err.message);
+  }
 });
 
 // Only run server locally (not on Vercel)
@@ -113,5 +122,3 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 module.exports = app; // For Vercel
-// This file is used to wrap the Express app for serverless deployment
-// It allows the app to be run in a serverless environment like AWS Lambda or Verc
