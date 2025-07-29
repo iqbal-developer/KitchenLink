@@ -1,0 +1,126 @@
+{{!< owner}}
+<div class="container py-4">
+    <h1 class="mb-4">Add Kitchen</h1>
+    <form action="/users/owner-kitchens/new" method="POST" enctype="multipart/form-data">
+        <div class="mb-3">
+            <label class="form-label">Name</label>
+            <input type="text" name="name" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Description</label>
+            <textarea name="description" class="form-control" rows="3" required></textarea>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Location</label>
+            <input type="text" name="location" class="form-control" id="location" required>
+            <input type="hidden" id="latitude" name="latitude">
+            <input type="hidden" id="longitude" name="longitude">
+        </div>
+        <div id="map" style="height:300px;width:100%;border-radius:8px;margin-bottom:1rem;"></div>
+        <div class="mb-3">
+            <label class="form-label">Capacity</label>
+            <input type="number" name="capacity" class="form-control" min="1" required>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Kitchen Type</label>
+            <select name="kitchenType" class="form-select" required>
+                <option value="">Select a type</option>
+                <option value="commercial">Commercial</option>
+                <option value="home">Home</option>
+                <option value="industrial">Industrial</option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Amenities</label>
+            <div id="amenities-list"></div>
+            <button type="button" class="btn btn-sm btn-outline-primary mt-2" onclick="addAmenity()">Add Amenity</button>
+            <div class="form-text">Add each amenity with name, description, and price per hour.</div>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Hourly Rate (KES)</label>
+            <input type="number" name="hourlyRate" class="form-control" min="0" required>
+        </div>
+        <div class="mb-3">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="availability" name="availability" checked>
+                <label class="form-check-label" for="availability">
+                    Kitchen is available for booking
+                </label>
+            </div>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Rules (one per line)</label>
+            <textarea name="rules" class="form-control" rows="3"></textarea>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Images</label>
+            <input type="file" name="images" class="form-control" multiple accept="image/*">
+        </div>
+        <button type="submit" class="btn btn-success">Add Kitchen</button>
+        <a href="/users/owner-kitchens" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+<script>
+// Google Maps integration (same as public form)
+let map, marker, geocoder;
+function initMap() {
+  geocoder = new google.maps.Geocoder();
+  map = new google.maps.Map(document.getElementById('map'), {
+    zoom: 13,
+    center: { lat: -1.286389, lng: 36.817223 }
+  });
+  marker = new google.maps.Marker({
+    map: map,
+    draggable: true,
+    position: { lat: -1.286389, lng: 36.817223 }
+  });
+  document.getElementById('location').addEventListener('change', function() {
+    geocodeAddress(this.value);
+  });
+  marker.addListener('dragend', function() {
+    const pos = marker.getPosition();
+    document.getElementById('latitude').value = pos.lat();
+    document.getElementById('longitude').value = pos.lng();
+    geocoder.geocode({ location: pos }, function(results, status) {
+      if (status === 'OK' && results[0]) {
+        document.getElementById('location').value = results[0].formatted_address;
+      }
+    });
+  });
+}
+function geocodeAddress(address) {
+  geocoder.geocode({ address: address }, function(results, status) {
+    if (status === 'OK') {
+      map.setCenter(results[0].geometry.location);
+      marker.setPosition(results[0].geometry.location);
+      document.getElementById('latitude').value = results[0].geometry.location.lat();
+      document.getElementById('longitude').value = results[0].geometry.location.lng();
+    }
+  });
+}
+// Amenities dynamic fields
+function addAmenity(name = '', description = '', price = '') {
+  const idx = document.querySelectorAll('.amenity-item').length;
+  const div = document.createElement('div');
+  div.className = 'amenity-item row g-2 mb-2';
+  div.innerHTML = `
+    <div class="col-md-4">
+      <input type="text" name="amenities[${idx}][name]" class="form-control" placeholder="Name" value="${name}" required>
+    </div>
+    <div class="col-md-5">
+      <input type="text" name="amenities[${idx}][description]" class="form-control" placeholder="Description" value="${description}" required>
+    </div>
+    <div class="col-md-2">
+      <input type="number" name="amenities[${idx}][pricePerHour]" class="form-control" placeholder="Price/hr" min="0" value="${price}" required>
+    </div>
+    <div class="col-md-1 d-flex align-items-center">
+      <button type="button" class="btn btn-danger btn-sm" onclick="this.closest('.amenity-item').remove()">&times;</button>
+    </div>
+  `;
+  document.getElementById('amenities-list').appendChild(div);
+}
+window.addEventListener('DOMContentLoaded', () => {
+  if (document.querySelectorAll('.amenity-item').length === 0) addAmenity();
+});
+</script>
+<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAICG8FdrfxvPEKmAmGYxNBH16ndSO-xyw&callback=initMap"></script> 

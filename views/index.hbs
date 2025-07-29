@@ -1,0 +1,170 @@
+<div class="hero-section">
+    <div class="container">
+        <div class="hero-content">
+            <div class="hero-text">
+                <h1 class="hero-title">Welcome to KitchenLink</h1>
+                <p class="hero-description">Find and book professional kitchen spaces for your culinary needs</p>
+                <div class="hero-buttons">
+                    <a href="/kitchens" class="btn btn-primary btn-lg">Find a Kitchen</a>
+                    <a href="/how-it-works" class="btn btn-secondary btn-lg">How It Works</a>
+                </div>
+            </div>
+            <div class="hero-image">
+                <img src="/images/hero-image.jpg" alt="Professional Kitchen Space" class="main-image">
+                <div class="hero-overlay"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="features py-5">
+    <div class="container">
+        <h2 class="text-center mb-5">Why Choose KitchenLink?</h2>
+        <div class="row">
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-utensils fa-3x mb-3 text-primary"></i>
+                        <h3>Professional Kitchens</h3>
+                        <p>Access fully-equipped commercial kitchens with all the tools you need.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-calendar-alt fa-3x mb-3 text-primary"></i>
+                        <h3>Flexible Booking</h3>
+                        <p>Book kitchen space by the hour, day, or week to suit your schedule.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-users fa-3x mb-3 text-primary"></i>
+                        <h3>Community</h3>
+                        <p>Join a network of food entrepreneurs and culinary professionals.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- How It Works Section -->
+<section class="how-it-works py-5 bg-success bg-opacity-10">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="display-4 fw-bold text-dark">How It Works</h2>
+            <div class="border-bottom border-success w-25 mx-auto my-4"></div>
+            <p class="lead text-secondary">Get started with KitchenLink in three simple steps</p>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="step-card bg-white rounded-4 p-4 h-100 position-relative hover-shadow">
+                    <div class="step-number">1</div>
+                    <div class="icon-circle bg-success bg-opacity-10 mx-auto mb-4">
+                        <i class="fas fa-search fa-2x text-success"></i>
+                    </div>
+                    <h3 class="h4 text-dark text-center mb-3">Find a Kitchen</h3>
+                    <p class="text-secondary text-center mb-0">Browse our listings to find the perfect kitchen space for your needs.</p>
+                    <div class="text-center mt-4">
+                        <a href="/kitchens" class="btn btn-outline-success rounded-pill">
+                            <i class="fas fa-arrow-right me-2"></i>Browse Kitchens
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="step-card bg-white rounded-4 p-4 h-100 position-relative hover-shadow">
+                    <div class="step-number">2</div>
+                    <div class="icon-circle bg-success bg-opacity-10 mx-auto mb-4">
+                        <i class="fas fa-calendar-alt fa-2x text-success"></i>
+                    </div>
+                    <h3 class="h4 text-dark text-center mb-3">Book Your Time</h3>
+                    <p class="text-secondary text-center mb-0">Select your preferred dates and times, and make a reservation.</p>
+                    <div class="text-center mt-4">
+                        <a href="/auth/register" class="btn btn-outline-success rounded-pill">
+                            <i class="fas fa-clock me-2"></i>Start Booking
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="step-card bg-white rounded-4 p-4 h-100 position-relative hover-shadow">
+                    <div class="step-number">3</div>
+                    <div class="icon-circle bg-success bg-opacity-10 mx-auto mb-4">
+                        <i class="fas fa-utensils fa-2x text-success"></i>
+                    </div>
+                    <h3 class="h4 text-dark text-center mb-3">Start Cooking</h3>
+                    <p class="text-secondary text-center mb-0">Arrive at your booked time and start creating culinary masterpieces!</p>
+                    <div class="text-center mt-4">
+                        <a href="/help/cooking-tips" class="btn btn-outline-success rounded-pill">
+                            <i class="fas fa-book-open me-2"></i>Cooking Tips
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+.step-card {
+    border: 1px solid rgba(25, 135, 84, 0.1);
+    transition: all 0.3s ease;
+}
+
+.step-card:hover {
+    transform: translateY(-10px);
+}
+
+.step-number {
+    position: absolute;
+    top: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 40px;
+    height: 40px;
+    background-color: var(--bs-success);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+
+.icon-circle {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.rounded-4 {
+    border-radius: 1rem;
+}
+
+.hover-shadow:hover {
+    box-shadow: 0 .5rem 1rem rgba(25, 135, 84, 0.15);
+}
+
+.btn-outline-success {
+    border-width: 2px;
+}
+
+.btn-outline-success:hover {
+    background-color: var(--bs-success);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 .25rem .5rem rgba(25, 135, 84, 0.15);
+}
+</style>

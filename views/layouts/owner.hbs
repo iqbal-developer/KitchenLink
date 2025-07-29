@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{title}} | KitchenLink Owner</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #198754;
+            --primary-light: rgba(25, 135, 84, 0.1);
+            --dark: #212529;
+            --secondary: #6c757d;
+        }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            color: var(--dark);
+            background-color: #f8f9fa;
+        }
+        .owner-header {
+            background: var(--primary-color);
+            color: #fff;
+            padding: 1rem 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,.08);
+        }
+        .owner-header a {
+            color: #fff;
+            margin-right: 1.5rem;
+            font-weight: 500;
+            text-decoration: none;
+        }
+        .owner-header a:hover {
+            text-decoration: underline;
+        }
+        .owner-nav { display: flex; align-items: center; justify-content: space-between; }
+        .owner-logo { font-size: 1.5rem; font-weight: bold; letter-spacing: 1px; }
+    </style>
+</head>
+<body>
+    <header class="owner-header">
+        <div class="container owner-nav">
+            <span class="owner-logo"><i class="fas fa-utensils me-2"></i>Owner Portal</span>
+            <nav>
+                <a href="/users/owner-dashboard"><i class="fas fa-home me-1"></i>Dashboard</a>
+                <a href="/users/owner-kitchens"><i class="fas fa-store me-1"></i>My Kitchens</a>
+                <a href="/users/owner-bookings"><i class="fas fa-calendar-alt me-1"></i>Bookings</a>
+                <a href="/auth/logout"><i class="fas fa-sign-out-alt me-1"></i>Logout</a>
+            </nav>
+        </div>
+    </header>
+    <main class="container py-4">
+        {{{body}}}
+    </main>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</body>
+</html> 

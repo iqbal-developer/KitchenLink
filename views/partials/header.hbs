@@ -1,0 +1,76 @@
+<!-- Navigation -->
+<header>
+    <nav class="navbar navbar-expand-lg bg-white">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-utensils text-success me-2"></i>KitchenLink
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link {{#if isHome}}active{{/if}}" href="/">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{#if isServices}}active{{/if}}" href="/services">Services</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{#if isKitchens}}active{{/if}}" href="/kitchens">Find Kitchens</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{#if isAbout}}active{{/if}}" href="/about">About</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{#if isContact}}active{{/if}}" href="/contact">Contact</a>
+                    </li>
+                </ul>
+                <div class="d-flex align-items-center">
+                    {{#if user}}
+                        <div class="dropdown">
+                            <button class="btn btn-link nav-link dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-user-circle me-1"></i>{{user.name}}
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="/users/profile">
+                                    <i class="fas fa-user me-2 text-success"></i>Profile
+                                </a></li>
+                                <li><a class="dropdown-item" href="/bookings">
+                                    <i class="fas fa-calendar-alt me-2 text-success"></i>My Bookings
+                                </a></li>
+                                {{#if (eq user.role 'admin')}}
+                                    <li><a class="dropdown-item" href="/users/dashboard">
+                                        <i class="fas fa-th-large me-2 text-success"></i>Admin Dashboard
+                                    </a></li>
+                                {{/if}}
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item text-danger" href="/auth/logout">
+                                    <i class="fas fa-sign-out-alt me-2"></i>Logout
+                                </a></li>
+                            </ul>
+                        </div>
+                    {{else}}
+                        <a href="/auth/login" class="btn btn-outline-success me-2">Login</a>
+                        <a href="/auth/register" class="btn btn-success">Sign Up</a>
+                    {{/if}}
+                </div>
+            </div>
+        </div>
+    </nav>
+</header>
+
+<!-- Flash Messages -->
+{{#if messages.success}}
+<div class="alert alert-success alert-dismissible fade show" role="alert">
+    <i class="fas fa-check-circle me-2"></i>{{messages.success}}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+{{/if}}
+
+{{#if messages.error}}
+<div class="alert alert-danger alert-dismissible fade show" role="alert">
+    <i class="fas fa-exclamation-circle me-2"></i>{{messages.error}}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+{{/if}} 

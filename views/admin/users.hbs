@@ -1,0 +1,38 @@
+<div class="container py-4">
+    <h1 class="mb-4">Manage Users</h1>
+    <table class="table table-bordered table-hover">
+        <thead class="table-light">
+            <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Joined</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#each users}}
+            <tr>
+                <td>{{this.name}}</td>
+                <td>{{this.email}}</td>
+                <td>
+                    <form action="/users/admin/users/{{this._id}}/role" method="POST" class="d-flex align-items-center gap-2">
+                        <select name="role" class="form-select form-select-sm">
+                            <option value="user" {{#if (eq this.role 'user')}}selected{{/if}}>User</option>
+                            <option value="owner" {{#if (eq this.role 'owner')}}selected{{/if}}>Owner</option>
+                            <option value="admin" {{#if (eq this.role 'admin')}}selected{{/if}}>Admin</option>
+                        </select>
+                        <button type="submit" class="btn btn-sm btn-primary">Update</button>
+                    </form>
+                </td>
+                <td>{{formatDate this.createdAt}}</td>
+                <td>
+                    <form action="/users/admin/users/{{this._id}}/delete" method="POST" onsubmit="return confirm('Are you sure you want to delete this user?');">
+                        <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            {{/each}}
+        </tbody>
+    </table>
+</div> 

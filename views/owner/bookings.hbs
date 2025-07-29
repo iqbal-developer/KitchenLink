@@ -1,0 +1,47 @@
+{{!< owner}}
+<div class="container py-4">
+    <h1 class="mb-4">Manage Bookings</h1>
+    <table class="table table-bordered table-hover">
+        <thead class="table-light">
+            <tr>
+                <th>Kitchen</th>
+                <th>User</th>
+                <th>Dates</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#each bookings}}
+            <tr>
+                <td>{{kitchen.name}}</td>
+                <td>{{user.name}}<br><small>{{user.email}}</small></td>
+                <td>{{formatDate startDate}}<br>to<br>{{formatDate endDate}}</td>
+                <td>
+                    {{#if (eq status 'pending')}}
+                        <span class="badge bg-warning text-dark">Pending</span>
+                    {{else if (eq status 'approved')}}
+                        <span class="badge bg-success">Approved</span>
+                    {{else if (eq status 'rejected')}}
+                        <span class="badge bg-danger">Rejected</span>
+                    {{else}}
+                        <span class="badge bg-secondary">{{status}}</span>
+                    {{/if}}
+                </td>
+                <td>
+                    {{#if (eq status 'pending')}}
+                        <form action="/users/owner-bookings/{{_id}}/approve" method="POST" style="display:inline-block">
+                            <button type="submit" class="btn btn-sm btn-success">Approve</button>
+                        </form>
+                        <form action="/users/owner-bookings/{{_id}}/reject" method="POST" style="display:inline-block">
+                            <button type="submit" class="btn btn-sm btn-danger">Reject</button>
+                        </form>
+                    {{else}}
+                        <span class="text-muted">No actions</span>
+                    {{/if}}
+                </td>
+            </tr>
+            {{/each}}
+        </tbody>
+    </table>
+</div> 

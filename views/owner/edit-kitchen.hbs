@@ -1,0 +1,158 @@
+{{!< owner}}
+<div class="container py-4">
+    <h1 class="mb-4">Edit Kitchen</h1>
+    {{#if error}}
+        <div class="alert alert-danger">{{error}}</div>
+    {{/if}}
+    <form action="/users/owner-kitchens/{{kitchen._id}}/edit" method="POST" enctype="multipart/form-data">
+        <div class="mb-3">
+            <label class="form-label">Name</label>
+            <input type="text" name="name" class="form-control" value="{{kitchen.name}}" required>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Description</label>
+            <textarea name="description" class="form-control" rows="3" required>{{kitchen.description}}</textarea>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Location</label>
+            <input type="text" name="location" class="form-control" id="location" value="{{kitchen.location}}" required>
+            <input type="hidden" id="latitude" name="latitude" value="{{kitchen.latitude}}">
+            <input type="hidden" id="longitude" name="longitude" value="{{kitchen.longitude}}">
+        </div>
+        <div id="map" style="height:300px;width:100%;border-radius:8px;margin-bottom:1rem;"></div>
+        <div class="mb-3">
+            <label class="form-label">Capacity</label>
+            <input type="number" name="capacity" class="form-control" value="{{kitchen.capacity}}" min="1" required>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Kitchen Type</label>
+            <select name="kitchenType" class="form-select" required>
+                <option value="">Select a type</option>
+                <option value="commercial" {{#if (eq kitchen.kitchenType 'commercial')}}selected{{/if}}>Commercial</option>
+                <option value="home" {{#if (eq kitchen.kitchenType 'home')}}selected{{/if}}>Home</option>
+                <option value="industrial" {{#if (eq kitchen.kitchenType 'industrial')}}selected{{/if}}>Industrial</option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Amenities</label>
+            <div id="amenities-list"></div>
+            <button type="button" class="btn btn-sm btn-outline-primary mt-2" onclick="addAmenity()">Add Amenity</button>
+            <div class="form-text">Add each amenity with name, description, and price per hour.</div>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Hourly Rate (KES)</label>
+            <input type="number" name="hourlyRate" class="form-control" value="{{kitchen.hourlyRate}}" min="0" required>
+        </div>
+        <div class="mb-3">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="availability" name="availability" {{#if kitchen.availability}}checked{{/if}}>
+                <label class="form-check-label" for="availability">
+                    Kitchen is available for booking
+                </label>
+            </div>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Rules (one per line)</label>
+            <textarea name="rules" class="form-control" rows="3">{{#each kitchen.rules}}{{this}}
+{{/each}}</textarea>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Images</label>
+            <input type="file" name="images" class="form-control" multiple accept="image/*">
+            {{#if kitchen.images.length}}
+            <div class="mt-2">
+                <label>Current Images:</label>
+                <div class="d-flex flex-wrap gap-2">
+                    {{#each kitchen.images}}
+                        <div class="position-relative" style="display:inline-block;">
+                            <img src="{{this}}" alt="Kitchen Image" style="width: 100px; height: 100px; object-fit: cover; border-radius: 8px;">
+                            <form action="/users/owner-kitchens/{{../kitchen._id}}/remove-image" method="POST" style="position:absolute;top:2px;right:2px;">
+                                <input type="hidden" name="image" value="{{this}}">
+                                <button type="submit" class="btn btn-sm btn-danger" style="padding:2px 6px; border-radius:50%;"><i class="fas fa-times"></i></button>
+                            </form>
+                        </div>
+                    {{/each}}
+                </div>
+                <div class="form-text">Click the X to remove an image. Upload new images to add more.</div>
+            </div>
+            {{/if}}
+        </div>
+        <button type="submit" class="btn btn-success">Save Changes</button>
+        <a href="/users/owner-kitchens" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+<script>
+// Google Maps integration
+let map, marker, geocoder;
+function initMap() {
+  geocoder = new google.maps.Geocoder();
+  var initialAddress = document.getElementById('location').value || 'Nairobi, Kenya';
+  var initialLat = parseFloat(document.getElementById('latitude').value) || -1.286389;
+  var initialLng = parseFloat(document.getElementById('longitude').value) || 36.817223;
+  map = new google.maps.Map(document.getElementById('map'), {
+    zoom: 13,
+    center: { lat: initialLat, lng: initialLng }
+  });
+  marker = new google.maps.Marker({
+    map: map,
+    draggable: true,
+    position: { lat: initialLat, lng: initialLng }
+  });
+  geocodeAddress(initialAddress);
+  document.getElementById('location').addEventListener('change', function() {
+    geocodeAddress(this.value);
+  });
+  marker.addListener('dragend', function() {
+    const pos = marker.getPosition();
+    document.getElementById('latitude').value = pos.lat();
+    document.getElementById('longitude').value = pos.lng();
+    geocoder.geocode({ location: pos }, function(results, status) {
+      if (status === 'OK' && results[0]) {
+        document.getElementById('location').value = results[0].formatted_address;
+      }
+    });
+  });
+}
+function geocodeAddress(address) {
+  geocoder.geocode({ address: address }, function(results, status) {
+    if (status === 'OK') {
+      map.setCenter(results[0].geometry.location);
+      marker.setPosition(results[0].geometry.location);
+      document.getElementById('latitude').value = results[0].geometry.location.lat();
+      document.getElementById('longitude').value = results[0].geometry.location.lng();
+    }
+  });
+}
+// Amenities dynamic fields
+function addAmenity(name = '', description = '', price = '') {
+  const idx = document.querySelectorAll('.amenity-item').length;
+  const div = document.createElement('div');
+  div.className = 'amenity-item row g-2 mb-2';
+  div.innerHTML = `
+    <div class="col-md-4">
+      <input type="text" name="amenities[${idx}][name]" class="form-control" placeholder="Name" value="${name}" required>
+    </div>
+    <div class="col-md-5">
+      <input type="text" name="amenities[${idx}][description]" class="form-control" placeholder="Description" value="${description}" required>
+    </div>
+    <div class="col-md-2">
+      <input type="number" name="amenities[${idx}][pricePerHour]" class="form-control" placeholder="Price/hr" min="0" value="${price}" required>
+    </div>
+    <div class="col-md-1 d-flex align-items-center">
+      <button type="button" class="btn btn-danger btn-sm" onclick="this.closest('.amenity-item').remove()">&times;</button>
+    </div>
+  `;
+  document.getElementById('amenities-list').appendChild(div);
+}
+window.addEventListener('DOMContentLoaded', () => {
+  // Pre-fill amenities if editing
+  if (window.kitchenAmenities && Array.isArray(window.kitchenAmenities)) {
+    window.kitchenAmenities.forEach(a => addAmenity(a.name, a.description, a.pricePerHour));
+  } else if (document.querySelectorAll('.amenity-item').length === 0) {
+    addAmenity();
+  }
+});
+// Pass amenities from server to JS
+window.kitchenAmenities = {{json kitchen.amenities}};
+</script>
+<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAICG8FdrfxvPEKmAmGYxNBH16ndSO-xyw&callback=initMap"></script> 

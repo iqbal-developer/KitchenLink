@@ -1,0 +1,46 @@
+{{!< owner}}
+<div class="container py-4">
+    <h1 class="mb-4">My Kitchens</h1>
+    <a href="/users/owner-kitchens/new" class="btn btn-success mb-3">Add Kitchen</a>
+    <table class="table table-bordered table-hover">
+        <thead class="table-light">
+            <tr>
+                <th>Image</th>
+                <th>Name</th>
+                <th>Location</th>
+                <th>Hourly Rate</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#each kitchens}}
+            <tr>
+                <td style="width:110px">
+                    {{#if images.length}}
+                        <img src="{{images.[0]}}" alt="Kitchen Image" style="width:100px;height:70px;object-fit:cover;border-radius:6px;">
+                    {{else}}
+                        <img src="/images/hero-image.jpg" alt="No kitchen image" style="width:100px;height:70px;object-fit:cover;border-radius:6px;">
+                    {{/if}}
+                </td>
+                <td>{{this.name}}</td>
+                <td>
+                    {{this.location}}
+                    <div class="mt-2">
+                        <a href="https://www.google.com/maps/search/?api=1&query={{encodeURI this.location}}" target="_blank">
+                            <img src="https://maps.googleapis.com/maps/api/staticmap?center={{encodeURI this.location}}&zoom=14&size=200x80&markers=color:red%7C{{encodeURI this.location}}&key=AIzaSyAICG8FdrfxvPEKmAmGYxNBH16ndSO-xyw" alt="Map for {{this.name}}" style="width:100%;max-width:200px;border-radius:6px;" loading="lazy">
+                            <small>View on Google Maps</small>
+                        </a>
+                    </div>
+                </td>
+                <td>KES {{this.hourlyRate}}/hour</td>
+                <td>
+                    <a href="/users/owner-kitchens/{{this._id}}/edit" class="btn btn-sm btn-primary">Edit</a>
+                    <form action="/users/owner-kitchens/{{this._id}}/delete" method="POST" style="display:inline-block" onsubmit="return confirm('Delete this kitchen?');">
+                        <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            {{/each}}
+        </tbody>
+    </table>
+</div> 

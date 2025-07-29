@@ -1,0 +1,28 @@
+<div class="container py-4">
+    <h2 class="mb-4">My Bookings</h2>
+    {{#if bookings.length}}
+        <div class="row">
+            {{#each bookings}}
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">{{kitchen.name}}</h5>
+                        <p class="card-text">
+                            <strong>Date:</strong> {{date}}
+                            <br>
+                            <strong>Time:</strong> {{startTime}} - {{endTime}}
+                            <br>
+                            <strong>Status:</strong> <span class="badge bg-success">Confirmed</span>
+                        </p>
+                        <a href="/kitchens/{{kitchen._id}}" class="btn btn-outline-primary btn-sm">View Kitchen</a>
+                    </div>
+                </div>
+            </div>
+            {{/each}}
+        </div>
+    {{else}}
+        <div class="alert alert-info" role="alert">
+            <i class="fas fa-info-circle me-2"></i>No bookings made yet. <a href="/kitchens" class="alert-link">Browse kitchens</a> to make your first booking!
+        </div>
+    {{/if}}
+</div> 

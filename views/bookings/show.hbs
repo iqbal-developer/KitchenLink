@@ -1,0 +1,190 @@
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h2 class="card-title">{{booking.kitchen.name}}</h2>
+                    <p class="card-text">
+                        <strong>Location:</strong> {{booking.kitchen.location}}<br>
+                        <strong>Status:</strong> 
+                        <span class="badge {{#if (eq booking.status 'confirmed')}}bg-success{{else if (eq booking.status 'pending')}}bg-warning{{else}}bg-danger{{/if}}">
+                            {{booking.status}}
+                        </span>
+                    </p>
+                    
+                    <h4 class="mt-4">Booking Details</h4>
+                    <ul class="list-group mb-3">
+                        <li class="list-group-item"><strong>Date:</strong> {{formatDate booking.date}}</li>
+                        <li class="list-group-item"><strong>Start Time:</strong> {{booking.startTime}}</li>
+                        <li class="list-group-item"><strong>End Time:</strong> {{booking.endTime}}</li>
+                        <li class="list-group-item"><strong>Duration:</strong> {{calculateDuration booking.startTime booking.endTime}}</li>
+                        <li class="list-group-item"><strong>Guests:</strong> {{booking.guests}}</li>
+                    </ul>
+                    <h4 class="mt-4">Selected Amenities</h4>
+                    <ul class="list-group mb-4">
+                        {{#if booking.selectedAmenities.length}}
+                            {{#each booking.selectedAmenities}}
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    {{this.name}} <span class="badge bg-primary rounded-pill">KES {{this.pricePerHour}}/hr</span>
+                                </li>
+                            {{/each}}
+                        {{else}}
+                            <li class="list-group-item">None</li>
+                        {{/if}}
+                    </ul>
+                    <h4 class="mt-4">Payment Information</h4>
+                    <ul class="list-group mb-3">
+                        <li class="list-group-item"><strong>Total Amount:</strong> KES {{booking.totalCost}}</li>
+                        <li class="list-group-item"><strong>Payment Status:</strong> <span class="badge {{#if (eq booking.payment.status 'completed')}}bg-success{{else}}bg-warning{{/if}}">{{booking.payment.status}}</span></li>
+                    </ul>
+
+                    {{#if (eq booking.status 'pending')}}
+                        <div class="mt-4">
+                            <h5>Complete Payment</h5>
+                            <div class="mb-3">
+                                <label for="paymentMethod" class="form-label">Select Payment Method</label>
+                                <select class="form-select" id="paymentMethod">
+                                    <option value="paypal">PayPal</option>
+                                    <option value="mpesa">M-Pesa</option>
+                                    <option value="stripe">Card (Stripe)</option>
+                                </select>
+                            </div>
+                            <!-- PayPal Button -->
+                            <div id="paypal-section" style="display:none;">
+                                <div id="paypal-button-container"></div>
+                            </div>
+                            <!-- M-Pesa Form -->
+                            <div id="mpesa-section" style="display:none;">
+                                <form id="mpesa-form">
+                                    <div class="mb-3">
+                                        <label for="mpesaPhone" class="form-label">M-Pesa Phone Number</label>
+                                        <input type="text" class="form-control" id="mpesaPhone" name="mpesaPhone" placeholder="07XXXXXXXX" required>
+                                    </div>
+                                    <button type="submit" class="btn btn-success">Pay with M-Pesa</button>
+                                </form>
+                                <div id="mpesa-status" class="mt-2"></div>
+                            </div>
+                            <!-- Stripe Card Form -->
+                            <div id="stripe-section" style="display:none;">
+                                <form id="stripe-form">
+                                    <div id="card-element" class="mb-3"></div>
+                                    <button type="submit" class="btn btn-success">Pay with Card</button>
+                                </form>
+                                <div id="stripe-status" class="mt-2"></div>
+                            </div>
+                        </div>
+                        <!-- Payment Scripts -->
+                        <script src="https://www.paypal.com/sdk/js?client-id=YOUR_PAYPAL_CLIENT_ID&currency=USD"></script>
+                        <script src="https://js.stripe.com/v3/"></script>
+                        <script>
+                        document.addEventListener('DOMContentLoaded', function() {
+                            const methodSelect = document.getElementById('paymentMethod');
+                            const paypalSection = document.getElementById('paypal-section');
+                            const mpesaSection = document.getElementById('mpesa-section');
+                            const stripeSection = document.getElementById('stripe-section');
+                            // Show PayPal by default
+                            paypalSection.style.display = '';
+                            methodSelect.addEventListener('change', function() {
+                                paypalSection.style.display = this.value === 'paypal' ? '' : 'none';
+                                mpesaSection.style.display = this.value === 'mpesa' ? '' : 'none';
+                                stripeSection.style.display = this.value === 'stripe' ? '' : 'none';
+                            });
+                            // PayPal Button
+                            if (window.paypal) {
+                                paypal.Buttons({
+                                    createOrder: function(data, actions) {
+                                        return fetch(`/bookings/{{booking._id}}/paypal/create-order`, { method: 'POST' })
+                                            .then(res => res.json())
+                                            .then(data => data.id);
+                                    },
+                                    onApprove: function(data, actions) {
+                                        return fetch(`/bookings/{{booking._id}}/paypal/capture`, {
+                                            method: 'POST',
+                                            headers: { 'Content-Type': 'application/json' },
+                                            body: JSON.stringify({ orderId: data.orderID })
+                                        }).then(res => res.json()).then(data => {
+                                            if (data.success) location.reload();
+                                            else alert('Payment failed');
+                                        });
+                                    }
+                                }).render('#paypal-button-container');
+                            }
+                            // M-Pesa
+                            const mpesaForm = document.getElementById('mpesa-form');
+                            if (mpesaForm) {
+                                mpesaForm.addEventListener('submit', function(e) {
+                                    e.preventDefault();
+                                    const phone = document.getElementById('mpesaPhone').value;
+                                    fetch(`/bookings/{{booking._id}}/mpesa/initiate`, {
+                                        method: 'POST',
+                                        headers: { 'Content-Type': 'application/json' },
+                                        body: JSON.stringify({ phone })
+                                    }).then(res => res.json()).then(data => {
+                                        if (data.success) {
+                                            document.getElementById('mpesa-status').innerText = 'Check your phone to complete the payment.';
+                                        } else {
+                                            document.getElementById('mpesa-status').innerText = 'Payment initiation failed.';
+                                        }
+                                    });
+                                });
+                            }
+                            // Stripe
+                            if (window.Stripe) {
+                                const stripe = Stripe('YOUR_STRIPE_PUBLISHABLE_KEY');
+                                const elements = stripe.elements();
+                                const card = elements.create('card');
+                                card.mount('#card-element');
+                                const stripeForm = document.getElementById('stripe-form');
+                                stripeForm.addEventListener('submit', async function(e) {
+                                    e.preventDefault();
+                                    // Create PaymentIntent
+                                    const res = await fetch(`/bookings/{{booking._id}}/stripe/create-intent`, { method: 'POST' });
+                                    const data = await res.json();
+                                    const clientSecret = data.clientSecret;
+                                    const { paymentIntent, error } = await stripe.confirmCardPayment(clientSecret, {
+                                        payment_method: { card }
+                                    });
+                                    if (error) {
+                                        document.getElementById('stripe-status').innerText = error.message;
+                                    } else if (paymentIntent.status === 'succeeded') {
+                                        // Confirm on backend
+                                        await fetch(`/bookings/{{booking._id}}/stripe/confirm`, {
+                                            method: 'POST',
+                                            headers: { 'Content-Type': 'application/json' },
+                                            body: JSON.stringify({ paymentIntentId: paymentIntent.id })
+                                        });
+                                        location.reload();
+                                    }
+                                });
+                            }
+                        });
+                        </script>
+                    {{/if}}
+
+                    {{#if (eq booking.status 'confirmed')}}
+                        <div class="mt-4">
+                            <form action="/bookings/{{booking._id}}/cancel" method="POST">
+                                <button type="submit" class="btn btn-danger">Cancel Booking</button>
+                            </form>
+                        </div>
+                    {{/if}}
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="card-title">Need Help?</h4>
+                    <p class="card-text">
+                        If you have any questions about your booking or need assistance, please contact our support team.
+                    </p>
+                    <ul class="list-unstyled">
+                        <li><i class="fas fa-phone"></i> +254 700 000 000</li>
+                        <li><i class="fas fa-envelope"></i> support@kitchenlink.com</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> 

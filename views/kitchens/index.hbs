@@ -1,0 +1,144 @@
+<div class="container mt-5">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1>Available Kitchens</h1>
+            <p class="lead">Find the perfect kitchen space for your culinary needs</p>
+        </div>
+        <div class="col-md-4 text-end">
+            {{#if user}}
+                {{#if (eq user.role 'provider')}}
+                    <a href="/kitchens/new" class="btn btn-primary">
+                        <i class="fas fa-plus me-2"></i>List Your Kitchen
+                    </a>
+                {{/if}}
+            {{/if}}
+        </div>
+    </div>
+
+    <!-- Search and Filter Section -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form action="/kitchens" method="GET" class="row g-3">
+                <div class="col-md-3">
+                    <label for="location" class="form-label">Location</label>
+                    <select class="form-select" id="location" name="location">
+                        <option value="">All Locations</option>
+                        {{#each locations}}
+                        <option value="{{this}}" {{#if (eq ../filters.location this)}}selected{{/if}}>
+                            {{this}}
+                        </option>
+                        {{/each}}
+                    </select>
+                </div>
+
+                <div class="col-md-3">
+                    <label for="type" class="form-label">Kitchen Type</label>
+                    <select class="form-select" id="type" name="type">
+                        <option value="">All Types</option>
+                        {{#each kitchenTypes}}
+                            <option value="{{this}}" {{#if (eq ../filters.type this)}}selected{{/if}}>
+                                {{capitalize this}}
+                            </option>
+                        {{/each}}
+                    </select>
+                </div>
+
+                <div class="col-md-2">
+                    <label for="capacity" class="form-label">Min. Capacity</label>
+                    <input type="number" class="form-control" id="capacity" name="capacity" 
+                        min="1" value="{{filters.capacity}}" placeholder="Min people">
+                </div>
+
+                <div class="col-md-2">
+                    <label for="minPrice" class="form-label">Min Price/hr</label>
+                    <input type="number" class="form-control" id="minPrice" name="minPrice" 
+                        min="0" value="{{filters.minPrice}}" placeholder="Min KES">
+                </div>
+
+                <div class="col-md-2">
+                    <label for="maxPrice" class="form-label">Max Price/hr</label>
+                    <input type="number" class="form-control" id="maxPrice" name="maxPrice" 
+                        min="0" value="{{filters.maxPrice}}" placeholder="Max KES">
+                </div>
+
+                <div class="col-12">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-search me-2"></i>Search Kitchens
+                    </button>
+                    <a href="/kitchens" class="btn btn-outline-secondary">
+                        <i class="fas fa-undo me-2"></i>Reset Filters
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Kitchen Listings -->
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+        {{#each kitchens}}
+        <div class="col">
+            <div class="card h-100">
+                <div class="card-img-top-container">
+                    {{#if image}}
+                        <img src="{{image}}" class="card-img-top" alt="{{name}}">
+                    {{else if images.length}}
+                        <img src="{{images.[0]}}" class="card-img-top" alt="{{name}}" style="height:200px;object-fit:cover;">
+                    {{else}}
+                        <img src="/images/default-kitchen.jpg" class="card-img-top" alt="Default kitchen image">
+                    {{/if}}
+                    <a href="https://www.google.com/maps/search/?api=1&query={{encodeURI location}}" target="_blank" class="d-block mt-2">
+                        <img src="https://maps.googleapis.com/maps/api/staticmap?center={{encodeURI location}}&zoom=14&size=300x100&markers=color:red%7C{{encodeURI location}}&key=AIzaSyAICG8FdrfxvPEKmAmGYxNBH16ndSO-xyw" alt="Map for {{name}}" style="width:100%;border-radius:6px;" loading="lazy">
+                        <small>View on Google Maps</small>
+                    </a>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">{{name}}</h5>
+                    <p class="card-text">{{description}}</p>
+                    <p class="card-text"><small class="text-muted">Location: {{location}}</small></p>
+                    <p class="card-text"><small class="text-muted">Type: {{kitchenType}}</small></p>
+                    <p class="card-text"><small class="text-muted">Rate: KES {{hourlyRate}}/hour</small></p>
+                    <a href="/kitchens/{{_id}}" class="btn btn-primary">View Details</a>
+                </div>
+            </div>
+        </div>
+        {{/each}}
+    </div>
+
+    <!-- Pagination -->
+    {{#if totalPages}}
+        <nav aria-label="Page navigation" class="mt-4">
+            <ul class="pagination justify-content-center">
+                {{#if (gt currentPage 1)}}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{subtract currentPage 1}}{{#if query.location}}&location={{query.location}}{{/if}}{{#if query.equipment}}&equipment={{query.equipment}}{{/if}}{{#if query.capacity}}&capacity={{query.capacity}}{{/if}}">Previous</a>
+                    </li>
+                {{/if}}
+                
+                {{#each (range 1 totalPages)}}
+                    <li class="page-item {{#if (eq this ../currentPage)}}active{{/if}}">
+                        <a class="page-link" href="?page={{this}}{{#if ../query.location}}&location={{../query.location}}{{/if}}{{#if ../query.equipment}}&equipment={{../query.equipment}}{{/if}}{{#if ../query.capacity}}&capacity={{../query.capacity}}{{/if}}">{{this}}</a>
+                    </li>
+                {{/each}}
+
+                {{#if (lt currentPage totalPages)}}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{add currentPage 1}}{{#if query.location}}&location={{query.location}}{{/if}}{{#if query.equipment}}&equipment={{query.equipment}}{{/if}}{{#if query.capacity}}&capacity={{query.capacity}}{{/if}}">Next</a>
+                    </li>
+                {{/if}}
+            </ul>
+        </nav>
+    {{/if}}
+</div>
+
+<style>
+.card-img-top-container {
+    height: 200px;
+    overflow: hidden;
+}
+
+.card-img-top {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+</style> 

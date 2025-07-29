@@ -1,0 +1,181 @@
+<div class="container py-4">
+    <h1 class="mb-4">Admin Dashboard</h1>
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title">Total Users</h5>
+                    <p class="display-4">{{userCount}}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title">Total Kitchens</h5>
+                    <p class="display-4">{{kitchenCount}}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title">Total Bookings</h5>
+                    <p class="display-4">{{bookingCount}}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Charts Section -->
+    <div class="row mb-4">
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">Users vs Kitchens (Total Count)</div>
+                <div class="card-body">
+                    <canvas id="usersChart" style="width:280px; height:120px;" class="mx-auto d-block"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">Users vs Bookings (Total Count)</div>
+                <div class="card-body">
+                    <canvas id="kitchensChart" style="width:280px; height:120px;" class="mx-auto d-block"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">Kitchens vs Bookings (Total Count)</div>
+                <div class="card-body">
+                    <canvas id="bookingsChart" style="width:280px; height:120px;" class="mx-auto d-block"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">User Role Distribution</div>
+                <div class="card-body">
+                    <canvas id="rolesChart" style="width:280px; height:120px;" class="mx-auto d-block"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6">
+            <h3>Recent Users</h3>
+            <ul class="list-group mb-4">
+                {{#each users}}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    {{this.name}} <span class="badge bg-secondary">{{this.role}}</span>
+                </li>
+                {{/each}}
+            </ul>
+        </div>
+        <div class="col-md-6">
+            <h3>Recent Kitchens</h3>
+            <ul class="list-group mb-4">
+                {{#each kitchens}}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    {{this.name}} <span class="badge bg-secondary">{{this.location}}</span>
+                </li>
+                {{/each}}
+            </ul>
+        </div>
+    </div>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const usersVsKitchensLabels = {{{json chartData.usersVsKitchens.labels}}};
+    const usersVsKitchensData = {{{json chartData.usersVsKitchens.data}}};
+    const usersVsBookingsLabels = {{{json chartData.usersVsBookings.labels}}};
+    const usersVsBookingsData = {{{json chartData.usersVsBookings.data}}};
+    const kitchensVsBookingsLabels = {{{json chartData.kitchensVsBookings.labels}}};
+    const kitchensVsBookingsData = {{{json chartData.kitchensVsBookings.data}}};
+    const roleLabels = {{{json chartData.roleLabels}}};
+    const roleCounts = {{{json chartData.roleCounts}}};
+    // Debug output
+    console.log('usersVsKitchens:', usersVsKitchensLabels, usersVsKitchensData);
+    console.log('usersVsBookings:', usersVsBookingsLabels, usersVsBookingsData);
+    console.log('kitchensVsBookings:', kitchensVsBookingsLabels, kitchensVsBookingsData);
+    // Users vs Kitchens
+    new Chart(document.getElementById('usersChart'), {
+        type: 'bar',
+        data: {
+            labels: usersVsKitchensLabels,
+            datasets: [{
+                label: 'Users vs Kitchens (Total Count)',
+                data: usersVsKitchensData,
+                backgroundColor: [
+                    'rgba(54, 162, 235, 0.8)', // Users
+                    'rgba(75, 192, 192, 0.8)'  // Kitchens
+                ]
+            }]
+        },
+        options: { 
+            responsive: true, 
+            plugins: { 
+                legend: { display: false }
+            } 
+        }
+    });
+    // Users vs Bookings
+    new Chart(document.getElementById('kitchensChart'), {
+        type: 'bar',
+        data: {
+            labels: usersVsBookingsLabels,
+            datasets: [{
+                label: 'Users vs Bookings (Total Count)',
+                data: usersVsBookingsData,
+                backgroundColor: [
+                    'rgba(54, 162, 235, 0.8)', // Users
+                    'rgba(255, 159, 64, 0.8)'  // Bookings
+                ]
+            }]
+        },
+        options: { 
+            responsive: true, 
+            plugins: { 
+                legend: { display: false }
+            } 
+        }
+    });
+    // Kitchens vs Bookings
+    new Chart(document.getElementById('bookingsChart'), {
+        type: 'bar',
+        data: {
+            labels: kitchensVsBookingsLabels,
+            datasets: [{
+                label: 'Kitchens vs Bookings (Total Count)',
+                data: kitchensVsBookingsData,
+                backgroundColor: [
+                    'rgba(75, 192, 192, 0.8)', // Kitchens
+                    'rgba(255, 159, 64, 0.8)'  // Bookings
+                ]
+            }]
+        },
+        options: { 
+            responsive: true, 
+            plugins: { 
+                legend: { display: false }
+            } 
+        }
+    });
+    // User role distribution (pie)
+    new Chart(document.getElementById('rolesChart'), {
+        type: 'pie',
+        data: {
+            labels: roleLabels,
+            datasets: [{
+                data: roleCounts,
+                backgroundColor: [
+                    'rgba(54, 162, 235, 0.7)',
+                    'rgba(75, 192, 192, 0.7)',
+                    'rgba(255, 99, 132, 0.7)'
+                ]
+            }]
+        },
+        options: { responsive: true }
+    });
+});
+</script> 

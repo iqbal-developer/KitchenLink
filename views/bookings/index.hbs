@@ -1,0 +1,41 @@
+<div class="container mt-4">
+    <h1 class="mb-4">My Bookings</h1>
+    
+    {{#if bookings.length}}
+        <div class="row">
+            {{#each bookings}}
+                <div class="col-md-6 mb-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">{{kitchen.name}}</h5>
+                            <p class="card-text">
+                                <strong>Location:</strong> {{kitchen.location}}<br>
+                                <strong>Status:</strong> 
+                                <span class="badge {{#if (eq status 'confirmed')}}bg-success{{else if (eq status 'pending')}}bg-warning{{else}}bg-danger{{/if}}">
+                                    {{status}}
+                                </span>
+                            </p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <a href="/bookings/{{_id}}" class="btn btn-primary">View Details</a>
+                                {{#if (eq status 'pending')}}
+                                    <form action="/bookings/{{_id}}/pay" method="POST" class="d-inline">
+                                        <button type="submit" class="btn btn-success">Pay Now</button>
+                                    </form>
+                                {{/if}}
+                                {{#if (eq status 'confirmed')}}
+                                    <form action="/bookings/{{_id}}/cancel" method="POST" class="d-inline">
+                                        <button type="submit" class="btn btn-danger">Cancel Booking</button>
+                                    </form>
+                                {{/if}}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {{/each}}
+        </div>
+    {{else}}
+        <div class="alert alert-info">
+            You don't have any bookings yet. <a href="/kitchens">Browse available kitchens</a> to make a booking.
+        </div>
+    {{/if}}
+</div> 

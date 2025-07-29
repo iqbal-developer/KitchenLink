@@ -1,0 +1,179 @@
+{{!< owner}}
+<div class="container py-4">
+    <h1 class="mb-4">Kitchen Owner Dashboard</h1>
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title">Total Kitchens</h5>
+                    <p class="display-4">{{kitchenStats.totalKitchens}}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title">Total Bookings</h5>
+                    <p class="display-4">{{kitchenStats.totalBookings}}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title">Total Earnings</h5>
+                    <p class="display-4">Ksh {{kitchenStats.totalEarnings}}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Charts Section -->
+    <div class="row mb-4">
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">Kitchens vs Bookings (Total Count)</div>
+                <div class="card-body">
+                    <canvas id="kitchensBookingsChart" style="width:280px; height:120px;" class="mx-auto d-block"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">Kitchens vs Earnings (Total Count)</div>
+                <div class="card-body">
+                    <canvas id="kitchensEarningsChart" style="width:280px; height:120px;" class="mx-auto d-block"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">Bookings vs Earnings (Total Count)</div>
+                <div class="card-body">
+                    <canvas id="bookingsEarningsChart" style="width:280px; height:120px;" class="mx-auto d-block"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">Booking Status Distribution</div>
+                <div class="card-body">
+                    <canvas id="statusChart" style="width:280px; height:120px;" class="mx-auto d-block"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const kitchensVsBookingsLabels = {{{json chartData.kitchensVsBookings.labels}}};
+        const kitchensVsBookingsData = {{{json chartData.kitchensVsBookings.data}}};
+        const kitchensVsEarningsLabels = {{{json chartData.kitchensVsEarnings.labels}}};
+        const kitchensVsEarningsData = {{{json chartData.kitchensVsEarnings.data}}};
+        const bookingsVsEarningsLabels = {{{json chartData.bookingsVsEarnings.labels}}};
+        const bookingsVsEarningsData = {{{json chartData.bookingsVsEarnings.data}}};
+        const statusLabels = {{{json chartData.statusLabels}}};
+        const statusCounts = {{{json chartData.statusCounts}}};
+        // Kitchens vs Bookings
+        new Chart(document.getElementById('kitchensBookingsChart'), {
+            type: 'bar',
+            data: {
+                labels: kitchensVsBookingsLabels,
+                datasets: [{
+                    data: kitchensVsBookingsData,
+                    backgroundColor: [
+                        'rgba(75, 192, 192, 0.8)', // Kitchens
+                        'rgba(255, 159, 64, 0.8)'  // Bookings
+                    ]
+                }]
+            },
+            options: { responsive: true, plugins: { legend: { display: false } } }
+        });
+        // Kitchens vs Earnings
+        new Chart(document.getElementById('kitchensEarningsChart'), {
+            type: 'bar',
+            data: {
+                labels: kitchensVsEarningsLabels,
+                datasets: [{
+                    data: kitchensVsEarningsData,
+                    backgroundColor: [
+                        'rgba(75, 192, 192, 0.8)', // Kitchens
+                        'rgba(54, 162, 235, 0.8)'  // Earnings
+                    ]
+                }]
+            },
+            options: { responsive: true, plugins: { legend: { display: false } } }
+        });
+        // Bookings vs Earnings
+        new Chart(document.getElementById('bookingsEarningsChart'), {
+            type: 'bar',
+            data: {
+                labels: bookingsVsEarningsLabels,
+                datasets: [{
+                    data: bookingsVsEarningsData,
+                    backgroundColor: [
+                        'rgba(255, 159, 64, 0.8)', // Bookings
+                        'rgba(54, 162, 235, 0.8)'  // Earnings
+                    ]
+                }]
+            },
+            options: { responsive: true, plugins: { legend: { display: false } } }
+        });
+        // Booking status (pie)
+        new Chart(document.getElementById('statusChart'), {
+            type: 'pie',
+            data: {
+                labels: statusLabels,
+                datasets: [{
+                    data: statusCounts,
+                    backgroundColor: [
+                        'rgba(54, 162, 235, 0.7)',
+                        'rgba(75, 192, 192, 0.7)',
+                        'rgba(255, 99, 132, 0.7)',
+                        'rgba(255, 206, 86, 0.7)'
+                    ]
+                }]
+            },
+            options: { responsive: true }
+        });
+    });
+    </script>
+    <!-- Existing dashboard content below -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">My Kitchens</div>
+                <ul class="list-group list-group-flush">
+                    {{#each kitchens}}
+                    <li class="list-group-item d-flex align-items-center justify-content-between">
+                        <div class="d-flex align-items-center gap-3">
+                            {{#if images.length}}
+                                <img src="{{images.[0]}}" alt="Kitchen Image" style="width:60px;height:45px;object-fit:cover;border-radius:6px;">
+                            {{else}}
+                                <img src="/images/hero-image.jpg" alt="No kitchen image" style="width:60px;height:45px;object-fit:cover;border-radius:6px;">
+                            {{/if}}
+                            <a href="/kitchens/{{_id}}">{{name}}</a>
+                        </div>
+                        <span class="badge bg-success">{{location}}</span>
+                    </li>
+                    {{else}}
+                    <li class="list-group-item">No kitchens listed yet.</li>
+                    {{/each}}
+                </ul>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">Recent Bookings</div>
+                <ul class="list-group list-group-flush">
+                    {{#each bookings}}
+                    <li class="list-group-item">
+                        <strong>{{kitchen.name}}</strong> - {{kitchen.location}}<br>
+                        <span class="text-muted">{{formatDate startDate}} to {{formatDate endDate}}</span>
+                    </li>
+                    {{else}}
+                    <li class="list-group-item">No bookings yet.</li>
+                    {{/each}}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div> 

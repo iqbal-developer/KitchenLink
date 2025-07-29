@@ -1,0 +1,28 @@
+<div class="container py-4">
+    <h1 class="mb-4">Manage Kitchens</h1>
+    <table class="table table-bordered table-hover">
+        <thead class="table-light">
+            <tr>
+                <th>Name</th>
+                <th>Location</th>
+                <th>Owner</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#each kitchens}}
+            <tr>
+                <td>{{this.name}}</td>
+                <td>{{this.location}}</td>
+                <td>{{#if this.owner}}{{this.owner.name}}<br><small>{{this.owner.email}}</small>{{else}}-{{/if}}</td>
+                <td>
+                    <a href="/users/admin/kitchens/{{this._id}}/edit" class="btn btn-sm btn-primary">Edit</a>
+                    <form action="/users/admin/kitchens/{{this._id}}/delete" method="POST" style="display:inline-block" onsubmit="return confirm('Delete this kitchen?');">
+                        <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            {{/each}}
+        </tbody>
+    </table>
+</div> 
