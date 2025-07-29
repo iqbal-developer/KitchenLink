@@ -1,4 +1,6 @@
 const app = require('../app');
 
-// Export Express app directly for Vercel
-module.exports = app;
+// Vercel expects a default export
+module.exports = (req, res) => {
+  return app(req, res); 
+};
