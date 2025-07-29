@@ -9,6 +9,8 @@ const bcrypt = require('bcryptjs');
 const User = require('../models/User');
 const Kitchen = require('../models/Kitchen');
 const Booking = require('../models/Booking');
+const Review = require('../models/Review');
+const Favorite = require('../models/Favorite');
 
 const MONGO_URI = process.env.MONGO_URI;
 
@@ -177,6 +179,35 @@ const bookings = [
   }
 ];
 
+// --- REVIEWS (each user rates a kitchen) ---
+const reviews = [
+  {
+    userEmail: "uma.user@kitchenlink.com",
+    kitchenName: "Olivia Commercial Kitchen",
+    rating: 5,
+    comment: "Fantastic kitchen! Very clean and fully equipped."
+  },
+  {
+    userEmail: "umar.user@kitchenlink.com",
+    kitchenName: "Oscar Home Kitchen",
+    rating: 4,
+    comment: "Cozy and affordable, but limited space."
+  },
+  {
+    userEmail: "usha.user@kitchenlink.com",
+    kitchenName: "Industrial Food Prep Hub",
+    rating: 5,
+    comment: "Perfect for our catering business bulk prep."
+  }
+];
+
+// --- FAVORITES (users saving kitchens) ---
+const favorites = [
+  { userEmail: "uma.user@kitchenlink.com", kitchenName: "Oscar Home Kitchen" },
+  { userEmail: "umar.user@kitchenlink.com", kitchenName: "Olivia Commercial Kitchen" },
+  { userEmail: "usha.user@kitchenlink.com", kitchenName: "Industrial Food Prep Hub" }
+];
+
 // --- Helper to make dates look recent ---
 const SEED_TODAY = new Date();
 function randomRecentDate() {
@@ -212,7 +243,7 @@ async function seedDatabase() {
   for (let i = 0; i < kitchens.length; i++) {
     const ownerEmail = i === 0 ? "olivia.owner@kitchenlink.com" :
                        i === 1 ? "oscar.owner@kitchenlink.com" :
-                                 "olivia.owner@kitchenlink.com"; // Olivia owns 2nd too
+                                 "olivia.owner@kitchenlink.com"; // Olivia owns Industrial too
     const k = new Kitchen({
       ...kitchens[i],
       owner: userDocs[ownerEmail]._id,
@@ -240,6 +271,34 @@ async function seedDatabase() {
     });
     await booking.save();
     console.log(`Created booking for ${b.userEmail} at ${b.kitchenName}`);
+  }
+
+  for (const r of reviews) {
+    const user = userDocs[r.userEmail];
+    const kitchen = kitchenDocs[r.kitchenName];
+    if (!user || !kitchen) continue;
+    const review = new Review({
+      user: user._id,
+      kitchen: kitchen._id,
+      rating: r.rating,
+      comment: r.comment,
+      createdAt: randomRecentDate()
+    });
+    await review.save();
+    console.log(`Added review by ${r.userEmail} for ${r.kitchenName}`);
+  }
+
+  for (const f of favorites) {
+    const user = userDocs[f.userEmail];
+    const kitchen = kitchenDocs[f.kitchenName];
+    if (!user || !kitchen) continue;
+    const favorite = new Favorite({
+      user: user._id,
+      kitchen: kitchen._id,
+      createdAt: randomRecentDate()
+    });
+    await favorite.save();
+    console.log(`Added favorite: ${f.kitchenName} for ${f.userEmail}`);
   }
 
   console.log('✅ Seeding complete.');
