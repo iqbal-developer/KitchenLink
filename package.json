@@ -8,6 +8,7 @@
     "seed": "node seed/seedAdmin.js"
   },
   "dependencies": {
+    "@paypal/checkout-server-sdk": "^1.0.3",
     "bcryptjs": "^3.0.2",
     "body-parser": "^1.20.2",
     "connect-flash": "^0.1.1",
