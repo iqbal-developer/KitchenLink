@@ -5,7 +5,9 @@ const Booking = require('../models/Booking');
 const Review = require('../models/Review');
 const Favorite = require('../models/Favorite');
 
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/kitchenlink';
+const MONGO_URI = process.env.MONGO_URI || 'mongodb+srv://sahiniqbal054:sahiniqbal054@cluster0.rb3qei2.mongodb.net/kitchenlink';
+// Sample data for seeding
+// This data is used to populate the database with initial values for testing and development 
 
 const users = [
   // Admins
