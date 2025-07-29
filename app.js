@@ -82,5 +82,5 @@ app.use((err, req, res, next) => {
     res.status(500).render('error', { message: 'Something broke!' });
 });
 
-// Export the app for serverless (no app.listen!)
+// Export the app so serverless-http can wrap it
 module.exports = app;
