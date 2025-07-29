@@ -1,36 +1,3 @@
-// Preserve original console methods
-const originalLog = console.log;
-const originalError = console.error;
-
-// Prevent secrets from being logged in production
-const sensitivePatterns = [
-  process.env.MPESA_CONSUMER_KEY,
-  process.env.MPESA_CONSUMER_SECRET,
-  process.env.SESSION_SECRET,
-  process.env.MONGODB_URI
-].filter(Boolean);
-
-const scrubSecrets = (msg) => {
-  let output = msg;
-  for (const secret of sensitivePatterns) {
-    if (secret && output.includes(secret)) {
-      output = output.replace(new RegExp(secret, 'g'), '[HIDDEN]');
-    }
-  }
-  return output;
-};
-
-console.log = (...args) => {
-  if (process.env.NODE_ENV !== 'production') {
-    originalLog(...args);
-  } else {
-    originalLog(...args.map(arg => (typeof arg === 'string' ? scrubSecrets(arg) : arg)));
-  }
-};
-console.error = (...args) => {
-  originalError(...args.map(arg => (typeof arg === 'string' ? scrubSecrets(arg) : arg)));
-};
-
 require('dotenv').config();
 const express = require('express');
 const exphbs = require('express-handlebars');
@@ -44,7 +11,7 @@ const path = require('path');
 
 const app = express();
 
-// Handlebars setup
+// View engine setup
 const hbs = exphbs.create({
   defaultLayout: 'main',
   extname: '.hbs',
@@ -57,30 +24,26 @@ const hbs = exphbs.create({
 });
 app.engine('hbs', hbs.engine);
 app.set('view engine', 'hbs');
-
-// Fix view path for Vercel (serverless environment)
-app.set('views', path.join(__dirname, 'views'));
+app.set('views', path.join(__dirname, 'views')); // explicitly set
 
 // Middleware
 app.use(express.static('public'));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-// MongoDB connection (optimized for serverless)
-mongoose.connect(process.env.MONGODB_URI, {
-  serverSelectionTimeoutMS: 5000,
-  socketTimeoutMS: 45000,
-})
+// MongoDB connection
+const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/kitchenlink';
+mongoose.connect(MONGO_URI)
   .then(() => console.log('Connected to MongoDB'))
   .catch(err => console.error('MongoDB connection error:', err));
 
-// Session & flash
+// Session & flash messages
 app.use(session({
   secret: process.env.SESSION_SECRET || 'your-secret-key',
   resave: false,
   saveUninitialized: false,
-  store: MongoStore.create({ mongoUrl: process.env.MONGODB_URI }),
-  cookie: { maxAge: 24 * 60 * 60 * 1000 } // 24 hours
+  store: MongoStore.create({ mongoUrl: MONGO_URI }),
+  cookie: { maxAge: 24 * 60 * 60 * 1000 } // 1 day
 }));
 app.use(flash());
 app.use((req, res, next) => {
@@ -107,10 +70,6 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Only start server locally
-if (process.env.NODE_ENV !== 'production') {
-  const PORT = process.env.PORT || 3000;
-  app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-}
-
-module.exports = app;  // For Vercel
+// Start server (Railway provides PORT automatically)
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
