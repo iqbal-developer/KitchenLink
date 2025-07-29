@@ -1,4 +1,8 @@
-require('dotenv').config();
+// Only load .env locally (not in production on Vercel)
+if (process.env.NODE_ENV !== 'production') {
+    require('dotenv').config();
+}
+
 const express = require('express');
 const exphbs = require('express-handlebars');
 const bodyParser = require('body-parser');
