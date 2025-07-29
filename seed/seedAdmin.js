@@ -1,8 +1,6 @@
 // seed/seedAdmin.js
 
-if (process.env.NODE_ENV === 'production') {
-  console.log("Seeding database on Railway...");
-}
+console.log("Seeding KitchenLink database...");
 
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
@@ -12,10 +10,11 @@ const Booking = require('../models/Booking');
 const Review = require('../models/Review');
 const Favorite = require('../models/Favorite');
 
-const MONGO_URI = process.env.MONGO_URI;
+// Use Railway URI (proxy) as default if MONGO_URI isn't set
+const MONGO_URI = process.env.MONGO_URI || 'mongodb://mongo:sAacdlHgAoLCBUqrqBHkoTKAPPshleLm@switchyard.proxy.rlwy.net:57608';
 
 if (!MONGO_URI) {
-  console.error('❌ MONGO_URI is missing. Set it in Railway Variables.');
+  console.error('❌ No MongoDB URI available. Set it in .env or Railway Variables.');
   process.exit(1);
 }
 
