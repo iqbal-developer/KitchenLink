@@ -6,6 +6,7 @@
     "start": "node app.js",
     "dev": "nodemon app.js",
     "seed": "node seed/seedAdmin.js"
+    "postinstall": "npm run seed"
   },
   "dependencies": {
     "@paypal/checkout-server-sdk": "^1.0.3",
