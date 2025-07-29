@@ -9,7 +9,6 @@ const flash = require('connect-flash');
 const handlebarsHelpers = require('./helpers/handlebars');
 const path = require('path');
 
-
 const app = express();
 
 // Configure Handlebars
@@ -79,14 +78,5 @@ app.use((err, req, res, next) => {
     res.status(500).render('error', { message: 'Something broke!' });
 });
 
-// Global error handler
-app.use((err, req, res, next) => {
-  console.error('Global error handler:', err);
-  res.status(500).render('error', { message: err.message, error: err });
-});
-
-// Start server
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-}); 
+// Export the app for serverless (no app.listen!)
+module.exports = app;

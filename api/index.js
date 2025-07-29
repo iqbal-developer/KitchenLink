@@ -1,6 +1,5 @@
+const serverless = require('serverless-http');
 const app = require('../app');
 
-// Vercel expects a default export
-module.exports = (req, res) => {
-  return app(req, res); 
-};
+// Force Express detection to fix "Unsupported framework" error
+module.exports = serverless(app, { framework: 'express' });
