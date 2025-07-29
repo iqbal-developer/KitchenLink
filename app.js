@@ -1,8 +1,8 @@
-// Load env first
-require('dotenv').config();
+// Preserve original console methods
+const originalLog = console.log;
+const originalError = console.error;
 
 // Prevent secrets from being logged in production
-const escapeRegex = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // Escape for regex
 const sensitivePatterns = [
   process.env.MPESA_CONSUMER_KEY,
   process.env.MPESA_CONSUMER_SECRET,
@@ -14,7 +14,7 @@ const scrubSecrets = (msg) => {
   let output = msg;
   for (const secret of sensitivePatterns) {
     if (secret && output.includes(secret)) {
-      output = output.replace(new RegExp(escapeRegex(secret), 'g'), '[HIDDEN]');
+      output = output.replace(new RegExp(secret, 'g'), '[HIDDEN]');
     }
   }
   return output;
@@ -22,20 +22,21 @@ const scrubSecrets = (msg) => {
 
 const safeLog = (...args) => {
   if (process.env.NODE_ENV !== 'production') {
-    console.log(...args); // Full logs locally
+    originalLog(...args); // full logs locally
   } else {
-    console.log(...args.map(arg => (typeof arg === 'string' ? scrubSecrets(arg) : arg)));
+    originalLog(...args.map(arg => (typeof arg === 'string' ? scrubSecrets(arg) : arg)));
   }
 };
 
 const safeError = (...args) => {
-  console.error(...args.map(arg => (typeof arg === 'string' ? scrubSecrets(arg) : arg)));
+  originalError(...args.map(arg => (typeof arg === 'string' ? scrubSecrets(arg) : arg)));
 };
 
-// Override console methods
+// Replace console.log/error globally
 console.log = safeLog;
 console.error = safeError;
 
+require('dotenv').config();
 const express = require('express');
 const exphbs = require('express-handlebars');
 const bodyParser = require('body-parser');
@@ -78,7 +79,7 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   store: MongoStore.create({ mongoUrl: process.env.MONGODB_URI }),
-  cookie: { maxAge: 24 * 60 * 60 * 1000 }
+  cookie: { maxAge: 24 * 60 * 60 * 1000 } // 24 hours
 }));
 app.use(flash());
 app.use((req, res, next) => {
@@ -95,26 +96,22 @@ app.use('/kitchens', require('./routes/kitchens'));
 app.use('/bookings', require('./routes/bookings'));
 app.use('/users', require('./routes/users'));
 
-// Error handler
+// Error handling middleware
 app.use((err, req, res, next) => {
-  safeError('Error:', err.message);
-  res.status(500).render('error', { 
-    message: process.env.NODE_ENV === 'production' 
-      ? 'Something went wrong!' 
+  console.error('Error:', err.message);
+  res.status(500).render('error', {
+    message: process.env.NODE_ENV === 'production'
+      ? 'Something went wrong!'
       : err.message
   });
 });
 
-// 404 handler
-app.use((req, res) => {
-  res.status(404).render('error', { message: 'Page not found' });
-});
-
-// Local dev server (not for Vercel)
+// Only run server locally (not on Vercel)
 if (process.env.NODE_ENV !== 'production') {
   const PORT = process.env.PORT || 3000;
   app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 }
 
-module.exports = app;  // Export for Vercel
-// This allows the app to be used in serverless environments like AWS Lambda or Vercel
+module.exports = app; // For Vercel
+// This file is used to wrap the Express app for serverless deployment
+// It allows the app to be run in a serverless environment like AWS Lambda or Verc
