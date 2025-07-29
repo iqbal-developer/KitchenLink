@@ -5,7 +5,7 @@
   "scripts": {
     "start": "node app.js",
     "dev": "nodemon app.js",
-    "seed": "node seed/seedAdmin.js"
+    "seed": "node seed/seedAdmin.js",
     "postinstall": "npm run seed"
   },
   "dependencies": {
