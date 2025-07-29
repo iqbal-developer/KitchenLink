@@ -20,21 +20,16 @@ const scrubSecrets = (msg) => {
   return output;
 };
 
-const safeLog = (...args) => {
+console.log = (...args) => {
   if (process.env.NODE_ENV !== 'production') {
-    originalLog(...args); // full logs locally
+    originalLog(...args);
   } else {
     originalLog(...args.map(arg => (typeof arg === 'string' ? scrubSecrets(arg) : arg)));
   }
 };
-
-const safeError = (...args) => {
+console.error = (...args) => {
   originalError(...args.map(arg => (typeof arg === 'string' ? scrubSecrets(arg) : arg)));
 };
-
-// Replace console.log/error globally
-console.log = safeLog;
-console.error = safeError;
 
 require('dotenv').config();
 const express = require('express');
@@ -48,9 +43,6 @@ const handlebarsHelpers = require('./helpers/handlebars');
 const path = require('path');
 
 const app = express();
-
-// Tell Express where to find views (important for Vercel)
-app.set('views', path.join(__dirname, 'views'));
 
 // Handlebars setup
 const hbs = exphbs.create({
@@ -66,13 +58,19 @@ const hbs = exphbs.create({
 app.engine('hbs', hbs.engine);
 app.set('view engine', 'hbs');
 
+// Fix view path for Vercel (serverless environment)
+app.set('views', path.join(__dirname, 'views'));
+
 // Middleware
 app.use(express.static('public'));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-// MongoDB connection
-mongoose.connect(process.env.MONGODB_URI)
+// MongoDB connection (optimized for serverless)
+mongoose.connect(process.env.MONGODB_URI, {
+  serverSelectionTimeoutMS: 5000,
+  socketTimeoutMS: 45000,
+})
   .then(() => console.log('Connected to MongoDB'))
   .catch(err => console.error('MongoDB connection error:', err));
 
@@ -99,26 +97,20 @@ app.use('/kitchens', require('./routes/kitchens'));
 app.use('/bookings', require('./routes/bookings'));
 app.use('/users', require('./routes/users'));
 
-// Error handling middleware (with fallback text if template missing)
+// Error handling
 app.use((err, req, res, next) => {
   console.error('Error:', err.message);
-  try {
-    res.status(500).render('error', {
-      message: process.env.NODE_ENV === 'production'
-        ? 'Something went wrong!'
-        : err.message
-    });
-  } catch {
-    res.status(500).send(process.env.NODE_ENV === 'production'
+  res.status(500).render('error', {
+    message: process.env.NODE_ENV === 'production'
       ? 'Something went wrong!'
-      : err.message);
-  }
+      : err.message
+  });
 });
 
-// Only run server locally (not on Vercel)
+// Only start server locally
 if (process.env.NODE_ENV !== 'production') {
   const PORT = process.env.PORT || 3000;
   app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 }
 
-module.exports = app; // For Vercel
+module.exports = app;  // For Vercel
