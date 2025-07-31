@@ -10,7 +10,6 @@ const Review = require('../models/Review');
 const Favorite = require('../models/Favorite');
 const Activity = require('../models/Activity');
 
-// Railway Mongo URI (fallback for local)
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://mongo:sAacdlHgAoLCBUqrqBHkoTKAPPshleLm@switchyard.proxy.rlwy.net:57608';
 
 if (!MONGO_URI) {
@@ -18,7 +17,6 @@ if (!MONGO_URI) {
   process.exit(1);
 }
 
-// Helper date generator
 const SEED_TODAY = new Date();
 function randomRecentDate() {
   const daysAgo = Math.floor(Math.random() * 14);
@@ -28,7 +26,6 @@ function randomRecentDate() {
   return d;
 }
 
-// Sample Images for Kitchens
 const kitchenImages = [
   '/images/kitchens/kitchen1.jpg',
   '/images/kitchens/kitchen2.jpg',
@@ -36,8 +33,11 @@ const kitchenImages = [
   '/images/kitchens/kitchen4.jpg',
 ];
 
-// Generate hashed password
-const hashPassword = (plain) => bcrypt.hashSync(plain, 10);
+// ✅ Async password hasher
+async function hashPassword(plain) {
+  const salt = await bcrypt.genSalt(10);
+  return await bcrypt.hash(plain, salt);
+}
 
 async function seedDatabase() {
   try {
@@ -57,7 +57,7 @@ async function seedDatabase() {
     const admin = new User({
       name: 'Admin User',
       email: 'admin@kitchenlink.com',
-      password: hashPassword('AdminPass123'),
+      password: await hashPassword('AdminPass123'),
       role: 'admin',
       createdAt: randomRecentDate()
     });
@@ -70,7 +70,7 @@ async function seedDatabase() {
       const owner = new User({
         name: `Owner ${i}`,
         email: `owner${i}@kitchenlink.com`,
-        password: hashPassword(`OwnerPass${i}`),
+        password: await hashPassword(`OwnerPass${i}`),
         role: 'owner',
         createdAt: randomRecentDate()
       });
@@ -85,7 +85,7 @@ async function seedDatabase() {
       const user = new User({
         name: `User ${i}`,
         email: `user${i}@kitchenlink.com`,
-        password: hashPassword(`UserPass${i}`),
+        password: await hashPassword(`UserPass${i}`),
         role: 'user',
         createdAt: randomRecentDate()
       });
@@ -94,7 +94,7 @@ async function seedDatabase() {
       console.log(`Created user ${i}`);
     }
 
-    // Kitchens (each owner gets 1 kitchen)
+    // Kitchens
     const kitchens = [];
     for (let i = 0; i < owners.length; i++) {
       const kitchen = new Kitchen({
@@ -119,7 +119,7 @@ async function seedDatabase() {
       console.log(`Created kitchen: ${kitchen.name}`);
     }
 
-    // 10 Bookings
+    // Bookings
     const bookings = [];
     for (let i = 0; i < 10; i++) {
       const user = users[i % users.length];
@@ -140,7 +140,7 @@ async function seedDatabase() {
     }
     console.log('Created 10 bookings');
 
-    // 10 Reviews
+    // Reviews
     for (let i = 0; i < 10; i++) {
       const user = users[i % users.length];
       const kitchen = kitchens[i % kitchens.length];
@@ -154,7 +154,7 @@ async function seedDatabase() {
     }
     console.log('Created 10 reviews');
 
-    // 10 Favorites
+    // Favorites
     for (let i = 0; i < 10; i++) {
       const user = users[i % users.length];
       const kitchen = kitchens[i % kitchens.length];
@@ -166,7 +166,7 @@ async function seedDatabase() {
     }
     console.log('Created 10 favorites');
 
-    // 10 Activities (mixed actions)
+    // Activities
     const actions = ['booking', 'review', 'favorite'];
     for (let i = 0; i < 10; i++) {
       const user = users[i % users.length];
