@@ -1,186 +1,206 @@
-<div class="container mt-5">
-    <div class="row">
-        <!-- Booking Section (left) -->
-        <div class="col-md-4 order-md-1 order-2 mb-4 mb-md-0">
-            <div class="card sticky-top" style="top: 2rem;">
-                <div class="card-body">
-                    <h5 class="card-title"><i class="fas fa-calendar-alt me-2"></i>Book This Kitchen</h5>
-                    <p id="totalCostDisplay" class="fw-bold mb-3">Total Cost: KES 0</p>
-                    {{#if user}}
-                    <form action="/kitchens/{{kitchen._id}}/book" method="POST">
-                        <div class="mb-3">
-                            <label for="date" class="form-label">Date</label>
-                            <input type="date" class="form-control" id="date" name="date" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="startTime" class="form-label">Start Time</label>
-                            <input type="time" class="form-control" id="startTime" name="startTime" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="endTime" class="form-label">End Time</label>
-                            <input type="time" class="form-control" id="endTime" name="endTime" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="guests" class="form-label">Number of Guests</label>
-                            <input type="number" class="form-control" id="guests" name="guests" min="1" required>
-                        </div>
-                        <!-- Amenities Selection -->
-                        <div class="mb-3">
-                            <label class="form-label">Select Amenities</label>
-                            {{#each kitchen.amenities}}
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="selectedAmenities" 
-                                    value="{{this._id}}" id="amenity-{{this._id}}">
-                                <label class="form-check-label" for="amenity-{{this._id}}">
-                                    {{this.name}} - KES {{this.pricePerHour}}/hour
-                                </label>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{kitchen.name}} - KitchenLink</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+        integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2h0FkG1hCqH8zD/NfH/Y6L+qC4tWdF7eJzW8yVp2A7z2C+Q"
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        .carousel-item img {
+            height: 400px;
+            object-fit: cover;
+        }
+
+        .sticky-top {
+            top: 2rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-md-4 order-md-1 order-2 mb-4 mb-md-0">
+                <div class="card sticky-top" style="top: 2rem;">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="fas fa-calendar-alt me-2"></i>Book This Kitchen</h5>
+                        <p id="totalCostDisplay" class="fw-bold mb-3">Total Cost: KES 0</p>
+                        {{#if user}}
+                        <form action="/kitchens/{{kitchen._id}}/book" method="POST">
+                            <div class="mb-3">
+                                <label for="date" class="form-label">Date</label>
+                                <input type="date" class="form-control" id="date" name="date" required>
                             </div>
-                            {{/each}}
+                            <div class="mb-3">
+                                <label for="startTime" class="form-label">Start Time</label>
+                                <input type="time" class="form-control" id="startTime" name="startTime" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="endTime" class="form-label">End Time</label>
+                                <input type="time" class="form-control" id="endTime" name="endTime" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="guests" class="form-label">Number of Guests</label>
+                                <input type="number" class="form-control" id="guests" name="guests" min="1" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Select Amenities</label>
+                                {{#each kitchen.amenities}}
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="selectedAmenities"
+                                        value="{{this._id}}" id="amenity-{{this._id}}">
+                                    <label class="form-check-label" for="amenity-{{this._id}}">
+                                        {{this.name}} - KES {{this.pricePerHour}}/hour
+                                    </label>
+                                </div>
+                                {{/each}}
+                            </div>
+                            <div class="mb-3">
+                                <label for="paymentMethod" class="form-label">Payment Method</label>
+                                <select class="form-select" id="paymentMethod" name="paymentMethod" required>
+                                    <option value="">Select payment method</option>
+                                    <option value="mpesa">M-Pesa</option>
+                                    <option value="paypal">PayPal</option>
+                                    <option value="stripe">Card (Stripe)</option>
+                                </select>
+                            </div>
+                            <input type="hidden" name="totalCost" id="totalCost" value="">
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="fas fa-check me-2"></i>Book Now
+                            </button>
+                        </form>
+                        {{else}}
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>Please <a href="/auth/login">login</a> to book this
+                            kitchen.
                         </div>
-                        <div class="mb-3">
-                            <label for="paymentMethod" class="form-label">Payment Method</label>
-                            <select class="form-select" id="paymentMethod" name="paymentMethod" required>
-                                <option value="">Select payment method</option>
-                                <option value="mpesa">M-Pesa</option>
-                                <option value="paypal">PayPal</option>
-                                <option value="stripe">Card (Stripe)</option>
-                            </select>
-                        </div>
-                        <input type="hidden" name="totalCost" id="totalCost" value="">
-                        <button type="submit" class="btn btn-primary w-100">
-                            <i class="fas fa-check me-2"></i>Book Now
-                        </button>
-                    </form>
-                    {{else}}
-                    <div class="alert alert-info">
-                        <i class="fas fa-info-circle me-2"></i>Please <a href="/auth/login">login</a> to book this kitchen.
+                        {{/if}}
                     </div>
-                    {{/if}}
                 </div>
             </div>
-        </div>
-        <!-- Kitchen Images (right) -->
-        <div class="col-md-8 order-md-2 order-1">
-            <!-- Kitchen Images Carousel/Grid -->
-            {{#if kitchen.images.length}}
-            <div id="kitchenImagesCarousel" class="carousel slide mb-4" data-bs-ride="carousel">
-                <div class="carousel-inner">
+            <div class="col-md-8 order-md-2 order-1">
+                {{#if kitchen.images.length}}
+                <div id="kitchenImagesCarousel" class="carousel slide mb-4" data-bs-ride="carousel">
+                    <div class="carousel-inner">
                         {{#each kitchen.images}}
-                            <div class="carousel-item {{#if @first}}active{{/if}}">
-                        <img src="{{this}}" class="d-block w-100 rounded-3" alt="Kitchen Image" style="max-height:400px;object-fit:cover;">
-                            </div>
+                        <div class="carousel-item {{#if @first}}active{{/if}}">
+                            <img src="{{this}}" class="d-block w-100 rounded-3" alt="Kitchen Image">
+                        </div>
                         {{/each}}
-                </div>
-                <button class="carousel-control-prev" type="button" data-bs-target="#kitchenImagesCarousel" data-bs-slide="prev">
-                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                            <span class="visually-hidden">Previous</span>
-                        </button>
-                <button class="carousel-control-next" type="button" data-bs-target="#kitchenImagesCarousel" data-bs-slide="next">
-                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                            <span class="visually-hidden">Next</span>
-                        </button>
-            </div>
-            {{else}}
-            <img src="/images/hero-image.jpg" class="img-fluid rounded-3 mb-4" alt="No kitchen images available" style="max-height:400px;object-fit:cover;">
-            {{/if}}
-            <!-- Kitchen Information (below image) -->
-            <div class="card mb-4">
-                <div class="card-body">
-                    <h2 class="card-title">{{kitchen.name}}</h2>
-                    <p class="text-muted">
-                        <i class="fas fa-map-marker-alt me-2"></i>{{kitchen.location}}
-                    </p>
-                    <div id="map" style="height:300px;width:100%;border-radius:8px;margin-bottom:1rem;"></div>
-                    <p class="card-text">{{kitchen.description}}</p>
-                    <div class="row mt-4">
-                        <div class="col-md-6">
-                            <h5><i class="fas fa-info-circle me-2"></i>Details</h5>
-                            <ul class="list-unstyled">
-                                <li><strong>Type:</strong> {{kitchen.kitchenType}}</li>
-                                <li><strong>Capacity:</strong> {{kitchen.capacity}} people</li>
-                                <li><strong>Rate:</strong> KES {{kitchen.hourlyRate}}/hour</li>
-                            </ul>
-                        </div>
-                        <div class="col-md-6">
-                            <h5><i class="fas fa-star me-2"></i>Rating</h5>
-                            <div class="text-warning mb-2">
-                                {{#times kitchen.averageRating}}
-                                    <i class="fas fa-star"></i>
-                                {{/times}}
-                                {{#times (subtract 5 kitchen.averageRating)}}
-                                    <i class="far fa-star"></i>
-                                {{/times}}
-                                <span class="text-muted ms-2">({{kitchen.reviews.length}} reviews)</span>
-                            </div>
-                        </div>
                     </div>
+                    <button class="carousel-control-prev" type="button" data-bs-target="#kitchenImagesCarousel"
+                        data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Previous</span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#kitchenImagesCarousel"
+                        data-bs-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Next</span>
+                    </button>
                 </div>
-            </div>
-            <!-- Amenities Section -->
-            <div class="card mb-4">
-                <div class="card-body">
-                    <h5><i class="fas fa-concierge-bell me-2"></i>Amenities</h5>
-                    <div class="row">
-                        {{#each kitchen.amenities}}
-                        <div class="col-md-6 mb-3">
-                            <div class="card h-100">
-                                <div class="card-body">
-                                    <h6 class="card-title">{{this.name}}</h6>
-                                    <p class="card-text text-muted">{{this.description}}</p>
-                                    <p class="card-text">
-                                        <strong>KES {{this.pricePerHour}}/hr</strong>
-                                    </p>
+                {{else}}
+                <img src="/images/hero-image.jpg" class="img-fluid rounded-3 mb-4"
+                    alt="No kitchen images available">
+                {{/if}}
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h2 class="card-title">{{kitchen.name}}</h2>
+                        <p class="text-muted">
+                            <i class="fas fa-map-marker-alt me-2"></i>{{kitchen.location}}
+                        </p>
+                        <div id="map" style="height:300px;width:100%;border-radius:8px;margin-bottom:1rem;"></div>
+                        <p class="card-text">{{kitchen.description}}</p>
+                        <div class="row mt-4">
+                            <div class="col-md-6">
+                                <h5><i class="fas fa-info-circle me-2"></i>Details</h5>
+                                <ul class="list-unstyled">
+                                    <li><strong>Type:</strong> {{kitchen.kitchenType}}</li>
+                                    <li><strong>Capacity:</strong> {{kitchen.capacity}} people</li>
+                                    <li><strong>Rate:</strong> KES {{kitchen.hourlyRate}}/hour</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <h5><i class="fas fa-star me-2"></i>Rating</h5>
+                                <div class="text-warning mb-2">
+                                    {{#times kitchen.averageRating}}
+                                    <i class="fas fa-star"></i>
+                                    {{/times}}
+                                    {{#times (subtract 5 kitchen.averageRating)}}
+                                    <i class="far fa-star"></i>
+                                    {{/times}}
+                                    <span class="text-muted ms-2">({{kitchen.reviews.length}} reviews)</span>
                                 </div>
                             </div>
                         </div>
-                        {{/each}}
                     </div>
                 </div>
-            </div>
-            <!-- Rules Section -->
-            <div class="card mb-4">
-                <div class="card-body">
-                    <h5><i class="fas fa-list-ul me-2"></i>Rules</h5>
-                    <ul class="list-group list-group-flush">
-                        {{#each kitchen.rules}}
-                        <li class="list-group-item">
-                            <i class="fas fa-info-circle text-primary me-2"></i>{{this}}
-                        </li>
-                        {{/each}}
-                    </ul>
-                </div>
-            </div>
-            <!-- Reviews Section -->
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title"><i class="fas fa-comments me-2"></i>Reviews</h5>
-                    <!-- Review Form (only for logged-in users) -->
-                    {{#if user}}
-                    <form action="/kitchens/{{kitchen._id}}/reviews" method="POST" class="mb-4">
-                        <div class="mb-3">
-                            <label for="rating" class="form-label">Rating</label>
-                            <select class="form-select" id="rating" name="rating" required>
-                                <option value="">Select a rating</option>
-                                <option value="5">5 Stars</option>
-                                <option value="4">4 Stars</option>
-                                <option value="3">3 Stars</option>
-                                <option value="2">2 Stars</option>
-                                <option value="1">1 Star</option>
-                            </select>
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5><i class="fas fa-concierge-bell me-2"></i>Amenities</h5>
+                        <div class="row">
+                            {{#each kitchen.amenities}}
+                            <div class="col-md-6 mb-3">
+                                <div class="card h-100">
+                                    <div class="card-body">
+                                        <h6 class="card-title">{{this.name}}</h6>
+                                        <p class="card-text text-muted">{{this.description}}</p>
+                                        <p class="card-text">
+                                            <strong>KES {{this.pricePerHour}}/hr</strong>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            {{/each}}
                         </div>
-                        <div class="mb-3">
-                            <label for="comment" class="form-label">Your Review</label>
-                            <textarea class="form-control" id="comment" name="comment" rows="3" required></textarea>
-                        </div>
-                        <button type="submit" class="btn btn-primary">Submit Review</button>
-                    </form>
-                    {{else}}
-                    <div class="alert alert-info">
-                        <i class="fas fa-info-circle me-2"></i>Please <a href="/auth/login">login</a> to leave a review.
                     </div>
-                    {{/if}}
-                    <!-- Reviews List -->
-                    {{#if kitchen.reviews.length}}
+                </div>
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5><i class="fas fa-list-ul me-2"></i>Rules</h5>
+                        <ul class="list-group list-group-flush">
+                            {{#each kitchen.rules}}
+                            <li class="list-group-item">
+                                <i class="fas fa-info-circle text-primary me-2"></i>{{this}}
+                            </li>
+                            {{/each}}
+                        </ul>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="fas fa-comments me-2"></i>Reviews</h5>
+                        {{#if user}}
+                        <form action="/kitchens/{{kitchen._id}}/reviews" method="POST" class="mb-4">
+                            <div class="mb-3">
+                                <label for="rating" class="form-label">Rating</label>
+                                <select class="form-select" id="rating" name="rating" required>
+                                    <option value="">Select a rating</option>
+                                    <option value="5">5 Stars</option>
+                                    <option value="4">4 Stars</option>
+                                    <option value="3">3 Stars</option>
+                                    <option value="2">2 Stars</option>
+                                    <option value="1">1 Star</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="comment" class="form-label">Your Review</label>
+                                <textarea class="form-control" id="comment" name="comment" rows="3" required></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Submit Review</button>
+                        </form>
+                        {{else}}
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>Please <a href="/auth/login">login</a> to leave a
+                            review.
+                        </div>
+                        {{/if}}
+                        {{#if kitchen.reviews.length}}
                         {{#each kitchen.reviews}}
                         <div class="border-bottom mb-3 pb-3">
                             <div class="d-flex justify-content-between align-items-center">
@@ -200,85 +220,104 @@
                             <p class="mt-2 mb-0">{{comment}}</p>
                         </div>
                         {{/each}}
-                    {{else}}
+                        {{else}}
                         <p class="text-muted">No reviews yet. Be the first to review this kitchen!</p>
-                    {{/if}}
+                        {{/if}}
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
-<script>
-    function initMap() {
-        var lat = {{kitchen.latitude}};
-        var lng = {{kitchen.longitude}};
-        var hasCoords = !isNaN(lat) && !isNaN(lng);
-        var map = new google.maps.Map(document.getElementById('map'), {
-            zoom: 14,
-            center: hasCoords ? { lat: lat, lng: lng } : { lat: -1.286389, lng: 36.817223 } // Default to Nairobi
-        });
-        if (hasCoords) {
-            new google.maps.Marker({
-                map: map,
-                position: { lat: lat, lng: lng }
+    
+    <script>
+        function initMap() {
+            var lat = {{kitchen.latitude}};
+            var lng = {{kitchen.longitude}};
+            var hasCoords = !isNaN(lat) && !isNaN(lng);
+            var map = new google.maps.Map(document.getElementById('map'), {
+                zoom: 14,
+                center: hasCoords ? { lat: lat, lng: lng } : { lat: -1.286389, lng: 36.817223 } // Default to Nairobi
             });
-        } else {
-            var geocoder = new google.maps.Geocoder();
-            var address = "{{kitchen.location}}";
-            geocoder.geocode({ 'address': address }, function(results, status) {
-                if (status === 'OK') {
-                    map.setCenter(results[0].geometry.location);
-                    new google.maps.Marker({
-                        map: map,
-                        position: results[0].geometry.location
-                    });
-                } else {
-                    document.getElementById('map').innerHTML = '<div class="alert alert-warning">Map could not be loaded for this location.</div>';
-                }
-            });
+            if (hasCoords) {
+                new google.maps.Marker({
+                    map: map,
+                    position: { lat: lat, lng: lng }
+                });
+            } else {
+                var geocoder = new google.maps.Geocoder();
+                var address = "{{kitchen.location}}";
+                geocoder.geocode({ 'address': address }, function(results, status) {
+                    if (status === 'OK') {
+                        map.setCenter(results[0].geometry.location);
+                        new google.maps.Marker({
+                            map: map,
+                            position: results[0].geometry.location
+                        });
+                    } else {
+                        document.getElementById('map').innerHTML = '<div class="alert alert-warning">Map could not be loaded for this location.</div>';
+                    }
+                });
+            }
         }
-    }
-</script>
 
-<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAICG8FdrfxvPEKmAmGYxNBH16ndSO-xyw&callback=initMap"></script>
- 
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
-    const hourlyRate = Number({{kitchen.hourlyRate}});
-    const amenities = [
-      {{#each kitchen.amenities}}
-        { id: '{{this._id}}', pricePerHour: {{this.pricePerHour}} },
-      {{/each}}
-    ];
-    function calculateTotalCost() {
-      const startTime = document.getElementById('startTime').value;
-      const endTime = document.getElementById('endTime').value;
-      const guests = Number(document.getElementById('guests').value) || 1;
-      const selectedAmenities = Array.from(document.querySelectorAll('input[name="selectedAmenities"]:checked'));
-      if (!startTime || !endTime) return 0;
-      const [startHour, startMin] = startTime.split(':').map(Number);
-      const [endHour, endMin] = endTime.split(':').map(Number);
-      let duration = (endHour + endMin/60) - (startHour + startMin/60);
-      if (duration <= 0) duration = 0;
-      let amenitiesCost = 0;
-      selectedAmenities.forEach(cb => {
-        const amenity = amenities.find(a => a.id === cb.value);
-        if (amenity) amenitiesCost += amenity.pricePerHour;
-      });
-      const total = ((hourlyRate + amenitiesCost) * duration) * guests;
-      return Math.max(0, Math.round(total));
-    }
-    function updateTotalCost() {
-      const total = calculateTotalCost();
-      document.getElementById('totalCost').value = total;
-      document.getElementById('totalCostDisplay').textContent = 'Total Cost: KES ' + total;
-    }
-    ['startTime','endTime','guests'].forEach(id => {
-      document.getElementById(id).addEventListener('input', updateTotalCost);
-    });
-    document.querySelectorAll('input[name="selectedAmenities"]').forEach(cb => {
-      cb.addEventListener('change', updateTotalCost);
-    });
-    updateTotalCost();
-  });
-</script> 
+        // Wait for the Google Maps script to load before calling initMap
+        window.onload = function() {
+            if (typeof google !== 'undefined' && typeof google.maps !== 'undefined') {
+                initMap();
+            }
+        };
+    </script>
+    
+    <script async defer
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAICG8FdrfxvPEKmAmGYxNBH16ndSO-xyw"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const hourlyRate = Number({{kitchen.hourlyRate}});
+            const amenities = [
+                {{#each kitchen.amenities}}
+                { id: '{{this._id}}', pricePerHour: {{this.pricePerHour}} },
+                {{/each}}
+            ];
+
+            function calculateTotalCost() {
+                const startTime = document.getElementById('startTime').value;
+                const endTime = document.getElementById('endTime').value;
+                const guests = Number(document.getElementById('guests').value) || 1;
+                const selectedAmenities = Array.from(document.querySelectorAll('input[name="selectedAmenities"]:checked'));
+                if (!startTime || !endTime) return 0;
+                const [startHour, startMin] = startTime.split(':').map(Number);
+                const [endHour, endMin] = endTime.split(':').map(Number);
+                let duration = (endHour + endMin / 60) - (startHour + startMin / 60);
+                if (duration <= 0) duration = 0;
+                let amenitiesCost = 0;
+                selectedAmenities.forEach(cb => {
+                    const amenity = amenities.find(a => a.id === cb.value);
+                    if (amenity) amenitiesCost += amenity.pricePerHour;
+                });
+                const total = ((hourlyRate + amenitiesCost) * duration) * guests;
+                return Math.max(0, Math.round(total));
+            }
+
+            function updateTotalCost() {
+                const total = calculateTotalCost();
+                document.getElementById('totalCost').value = total;
+                document.getElementById('totalCostDisplay').textContent = 'Total Cost: KES ' + total;
+            }
+
+            ['startTime', 'endTime', 'guests'].forEach(id => {
+                document.getElementById(id).addEventListener('input', updateTotalCost);
+            });
+            document.querySelectorAll('input[name="selectedAmenities"]').forEach(cb => {
+                cb.addEventListener('change', updateTotalCost);
+            });
+            updateTotalCost();
+        });
+    </script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
+</body>
+
+</html>
