@@ -76,17 +76,6 @@ router.post('/register', async (req, res) => {
     }
 });
 
-// Login page
-router.get('/login', (req, res) => {
-    if (req.session.user) {
-        return res.redirect('/');
-    }
-    res.render('auth/login', {
-        title: 'Sign In - KitchenLink'
-        // Do NOT include error here
-    });
-});
-
 // Login user
 router.post('/login', async (req, res) => {
     try {
