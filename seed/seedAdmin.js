@@ -8,7 +8,7 @@ const Review = require('../models/Review');
 const Favorite = require('../models/Favorite');
 const Activity = require('../models/Activity');
 
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://mongo:sAacdlHgAoLCBUqrqBHkoTKAPPshleLm@switchyard.proxy.rlwy.net:57608';
+const MONGO_URI = process.env.MONGO_URI || 'mongodb.railway.internal';
 
 if (!MONGO_URI) {
   console.error('❌ Missing Mongo URI');
