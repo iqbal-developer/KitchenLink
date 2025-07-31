@@ -1,7 +1,8 @@
-// seed/seedAdmin.js
-require('dotenv').config();
+// seedAdmin.js
+
 const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs');
+const dotenv = require('dotenv');
+dotenv.config();
 
 const User = require('../models/User');
 const Kitchen = require('../models/Kitchen');
@@ -10,181 +11,102 @@ const Review = require('../models/Review');
 const Favorite = require('../models/Favorite');
 const Activity = require('../models/Activity');
 
-// Railway Mongo URI (fallback for local)
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://mongo:sAacdlHgAoLCBUqrqBHkoTKAPPshleLm@switchyard.proxy.rlwy.net:57608';
 
-if (!MONGO_URI) {
-  console.error('❌ Missing Mongo URI');
-  process.exit(1);
-}
-
-// Helper date generator
-const SEED_TODAY = new Date();
-function randomRecentDate() {
-  const daysAgo = Math.floor(Math.random() * 14);
-  const d = new Date(SEED_TODAY);
-  d.setDate(d.getDate() - daysAgo);
-  d.setHours(Math.floor(Math.random() * 24), Math.floor(Math.random() * 60), 0, 0);
-  return d;
-}
-
-// Sample Images for Kitchens
-const kitchenImages = [
-  '/images/kitchens/kitchen1.jpg',
-  '/images/kitchens/kitchen2.jpg',
-  '/images/kitchens/kitchen3.jpg',
-  '/images/kitchens/kitchen4.jpg',
-];
-
-// Generate hashed password
-const hashPassword = (plain) => bcrypt.hashSync(plain, 10);
-
-async function seedDatabase() {
+const connectDB = async () => {
   try {
-    await mongoose.connect(MONGO_URI);
-    console.log('Connected to MongoDB (Railway)');
+    await mongoose.connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true });
+    console.log('MongoDB connected');
+  } catch (err) {
+    console.error('Mongo connection error:', err);
+    process.exit(1);
+  }
+};
 
-    // Clear old data
-    await User.deleteMany({});
-    await Kitchen.deleteMany({});
-    await Booking.deleteMany({});
-    await Review.deleteMany({});
-    await Favorite.deleteMany({});
-    await Activity.deleteMany({});
-    console.log('Old data cleared');
+const clearData = async () => {
+  await User.deleteMany({});
+  await Kitchen.deleteMany({});
+  await Booking.deleteMany({});
+  await Review.deleteMany({});
+  await Favorite.deleteMany({});
+  await Activity.deleteMany({});
+};
 
-    // 1 Admin
-    const admin = new User({
-      name: 'Admin User',
-      email: 'admin@kitchenlink.com',
-      password: hashPassword('AdminPass123'),
-      role: 'admin',
-      createdAt: randomRecentDate()
-    });
-    await admin.save();
-    console.log('Created admin');
+const seedData = async () => {
+  try {
+    // Seed Users
+    const users = await User.insertMany([
+      // Admin
+      { name: 'Admin User', email: 'admin@example.com', role: 'admin', password: '$2b$12$UqAv8ADHjVRpKdpCLL.frODT8ztGqF/tdLamPX80aEN6tNjC/t.Rq' },
+      // Kitchen Owners
+      { name: 'Owner One', email: 'owner1@example.com', role: 'owner', password: '$2b$12$UgzRPKhmvEbKuqhUDgnOYOJoaDmbXNH8rUNzbDTjNYyf91dKzGy12' },
+      { name: 'Owner Two', email: 'owner2@example.com', role: 'owner', password: '$2b$12$7Zu94XqYOXjRzBikHw5vFegIuyM98OdUW0YcEkiB/Hd2Z/PyqHb/O' },
+      { name: 'Owner Three', email: 'owner3@example.com', role: 'owner', password: '$2b$12$2FPCHFWW.gofuGsgAOK2ee5Q.fEim4JuPDB09LH2q/LLrRjzalb8O' },
+      { name: 'Owner Four', email: 'owner4@example.com', role: 'owner', password: '$2b$12$9UirhPEVM.5nwMkMi3iv.O2yc9b99w8tCzqJ5Fk61yGG4N19BIDKi' },
+      // Users
+      { name: 'User One', email: 'user1@example.com', role: 'user', password: '$2b$12$.WM5gCfxs/vI8Sbqlm9iEuQhfQHVU7U3C8WDYZCcFPGCskOhzgBxG' },
+      { name: 'User Two', email: 'user2@example.com', role: 'user', password: '$2b$12$Y62Lk.ZJCJYJDQk9yzc/tOA7eoBGKcKoPCAoE/ZC/2E9O27QmL9Gy' },
+      { name: 'User Three', email: 'user3@example.com', role: 'user', password: '$2b$12$odD3mBoTozH3q3DigFSvheiLxFxdqQ5hs1AMhRlgP4WJXO0QIeb8O' },
+      { name: 'User Four', email: 'user4@example.com', role: 'user', password: '$2b$12$qYmhle0ZkFP1JY7.WZV9C.mpORSgVDF98BH3PBFQXiCfJQmITLk6e' },
+      { name: 'User Five', email: 'user5@example.com', role: 'user', password: '$2b$12$xAXqmSQZ8lbFDzwI1t5pqudTN2NSNXiA4AouHocRDO6laFTuSLcXi' },
+      { name: 'User Six', email: 'user6@example.com', role: 'user', password: '$2b$12$jPP4MJgAwczQAXtu0lG4bOl0jG/ApVVTtbyqkNH5Y5jh7J0IUXQFK' }
+    ]);
 
-    // 4 Kitchen Owners
-    const owners = [];
-    for (let i = 1; i <= 4; i++) {
-      const owner = new User({
-        name: `Owner ${i}`,
-        email: `owner${i}@kitchenlink.com`,
-        password: hashPassword(`OwnerPass${i}`),
-        role: 'owner',
-        createdAt: randomRecentDate()
-      });
-      await owner.save();
-      owners.push(owner);
-      console.log(`Created owner ${i}`);
-    }
+    // Seed Kitchens for each owner
+    const kitchens = await Kitchen.insertMany(users.slice(1, 5).map((owner, i) => ({
+      name: `Kitchen ${i + 1}`,
+      description: `Modern kitchen space ${i + 1}`,
+      location: `Location ${i + 1}`,
+      capacity: 10 + i,
+      kitchenType: 'shared',
+      amenities: ['fridge', 'oven', 'grill'],
+      hourlyRate: 500 + (i * 50),
+      availability: true,
+      owner: owner._id,
+      images: [`image${i + 1}a.jpg`, `image${i + 1}b.jpg`],
+      rules: ['Keep clean', 'No pets', 'Close door after use']
+    })));
 
-    // 6 Users
-    const users = [];
-    for (let i = 1; i <= 6; i++) {
-      const user = new User({
-        name: `User ${i}`,
-        email: `user${i}@kitchenlink.com`,
-        password: hashPassword(`UserPass${i}`),
-        role: 'user',
-        createdAt: randomRecentDate()
-      });
-      await user.save();
-      users.push(user);
-      console.log(`Created user ${i}`);
-    }
+    // Seed Bookings
+    const bookings = await Booking.insertMany([...Array(10)].map((_, i) => ({
+      user: users[5 + (i % 6)]._id,
+      kitchen: kitchens[i % kitchens.length]._id,
+      date: new Date(),
+      hoursBooked: 2 + (i % 3),
+      status: 'confirmed'
+    })));
 
-    // Kitchens (each owner gets 1 kitchen)
-    const kitchens = [];
-    for (let i = 0; i < owners.length; i++) {
-      const kitchen = new Kitchen({
-        name: `Premium Kitchen ${i + 1}`,
-        description: `State-of-the-art kitchen facility for chefs and bakers.`,
-        location: `Nairobi Zone ${i + 1}`,
-        capacity: 20 + i * 5,
-        kitchenType: 'commercial',
-        amenities: [
-          { name: 'Oven', description: 'High-capacity oven', pricePerHour: 5 },
-          { name: 'Fridge', description: 'Commercial-grade fridge', pricePerHour: 3 }
-        ],
-        hourlyRate: 50 + i * 10,
-        availability: true,
-        images: [kitchenImages[i]],
-        owner: owners[i]._id,
-        rules: ['No smoking', 'Clean after use'],
-        createdAt: randomRecentDate()
-      });
-      await kitchen.save();
-      kitchens.push(kitchen);
-      console.log(`Created kitchen: ${kitchen.name}`);
-    }
+    // Seed Reviews
+    await Review.insertMany([...Array(10)].map((_, i) => ({
+      user: users[5 + (i % 6)]._id,
+      kitchen: kitchens[i % kitchens.length]._id,
+      rating: 3 + (i % 3),
+      comment: `Nice kitchen ${i}`
+    })));
 
-    // 10 Bookings
-    const bookings = [];
-    for (let i = 0; i < 10; i++) {
-      const user = users[i % users.length];
-      const kitchen = kitchens[i % kitchens.length];
-      const booking = new Booking({
-        user: user._id,
-        kitchen: kitchen._id,
-        date: randomRecentDate(),
-        startTime: '10:00',
-        endTime: '14:00',
-        guests: 5,
-        totalCost: 200,
-        status: 'confirmed',
-        createdAt: randomRecentDate()
-      });
-      await booking.save();
-      bookings.push(booking);
-    }
-    console.log('Created 10 bookings');
+    // Seed Favorites
+    await Favorite.insertMany([...Array(10)].map((_, i) => ({
+      user: users[5 + (i % 6)]._id,
+      kitchen: kitchens[i % kitchens.length]._id
+    })));
 
-    // 10 Reviews
-    for (let i = 0; i < 10; i++) {
-      const user = users[i % users.length];
-      const kitchen = kitchens[i % kitchens.length];
-      await new Review({
-        user: user._id,
-        kitchen: kitchen._id,
-        rating: (i % 5) + 1,
-        comment: `Great experience #${i + 1}`,
-        createdAt: randomRecentDate()
-      }).save();
-    }
-    console.log('Created 10 reviews');
+    // Seed Activities
+    await Activity.insertMany([...Array(10)].map((_, i) => ({
+      user: users[5 + (i % 6)]._id,
+      action: 'booked a kitchen',
+      metadata: `Booking ${i}`
+    })));
 
-    // 10 Favorites
-    for (let i = 0; i < 10; i++) {
-      const user = users[i % users.length];
-      const kitchen = kitchens[i % kitchens.length];
-      await new Favorite({
-        user: user._id,
-        kitchen: kitchen._id,
-        createdAt: randomRecentDate()
-      }).save();
-    }
-    console.log('Created 10 favorites');
-
-    // 10 Activities (mixed actions)
-    const actions = ['booking', 'review', 'favorite'];
-    for (let i = 0; i < 10; i++) {
-      const user = users[i % users.length];
-      await new Activity({
-        user: user._id,
-        action: actions[i % actions.length],
-        details: `Activity #${i + 1}`,
-        createdAt: randomRecentDate()
-      }).save();
-    }
-    console.log('Created 10 activities');
-
-    console.log('✅ Seeding complete.');
-    await mongoose.disconnect();
+    console.log('✅ Database seeded successfully');
   } catch (err) {
     console.error('❌ Seed error:', err);
-    await mongoose.disconnect();
+  } finally {
+    mongoose.disconnect();
   }
-}
+};
 
-seedDatabase();
+(async () => {
+  await connectDB();
+  await clearData();
+  await seedData();
+})();
