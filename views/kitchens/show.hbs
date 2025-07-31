@@ -209,37 +209,39 @@
     </div>
 </div>
 <script>
-  function initMap() {
-    var lat = {{kitchen.latitude}};
-    var lng = {{kitchen.longitude}};
-    var hasCoords = !isNaN(lat) && !isNaN(lng);
-    var map = new google.maps.Map(document.getElementById('map'), {
-      zoom: 14,
-      center: hasCoords ? { lat: lat, lng: lng } : { lat: -1.286389, lng: 36.817223 } // Default to Nairobi
-    });
-    if (hasCoords) {
-      new google.maps.Marker({
-        map: map,
-        position: { lat: lat, lng: lng }
-      });
-    } else {
-      var geocoder = new google.maps.Geocoder();
-      var address = "{{kitchen.location}}";
-      geocoder.geocode({ 'address': address }, function(results, status) {
-        if (status === 'OK') {
-          map.setCenter(results[0].geometry.location);
-          new google.maps.Marker({
-            map: map,
-            position: results[0].geometry.location
-          });
+    function initMap() {
+        var lat = {{kitchen.latitude}};
+        var lng = {{kitchen.longitude}};
+        var hasCoords = !isNaN(lat) && !isNaN(lng);
+        var map = new google.maps.Map(document.getElementById('map'), {
+            zoom: 14,
+            center: hasCoords ? { lat: lat, lng: lng } : { lat: -1.286389, lng: 36.817223 } // Default to Nairobi
+        });
+        if (hasCoords) {
+            new google.maps.Marker({
+                map: map,
+                position: { lat: lat, lng: lng }
+            });
         } else {
-          document.getElementById('map').innerHTML = '<div class="alert alert-warning">Map could not be loaded for this location.</div>';
+            var geocoder = new google.maps.Geocoder();
+            var address = "{{kitchen.location}}";
+            geocoder.geocode({ 'address': address }, function(results, status) {
+                if (status === 'OK') {
+                    map.setCenter(results[0].geometry.location);
+                    new google.maps.Marker({
+                        map: map,
+                        position: results[0].geometry.location
+                    });
+                } else {
+                    document.getElementById('map').innerHTML = '<div class="alert alert-warning">Map could not be loaded for this location.</div>';
+                }
+            });
         }
-      });
     }
-  }
 </script>
-<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAICG8FdrfxvPEKmAmGYxNBH16ndSO-xyw&callback=initMap"></script> 
+
+<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAICG8FdrfxvPEKmAmGYxNBH16ndSO-xyw&callback=initMap"></script>
+ 
 <script>
   document.addEventListener('DOMContentLoaded', function() {
     const hourlyRate = Number({{kitchen.hourlyRate}});
